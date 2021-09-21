@@ -41,6 +41,7 @@ type Pool @entity {
   # derived fields
   poolDayData: [InvestmentDayData!]! @derivedFrom(field: "investmentAddress")
   positions: [AssetPosition!]! @derivedFrom(field: "investmentAddress")
+  trades: [Trade!]! @derivedFrom(field: "investmentAddress")
 }
 
 type NFTPool @entity {
@@ -75,6 +76,7 @@ type NFTPool @entity {
   # derived fields
   poolDayData: [InvestmentDayData!]! @derivedFrom(field: "investmentAddress")
   positions: [AssetPosition!]! @derivedFrom(field: "investmentAddress")
+  trades: [Trade!]! @derivedFrom(field: "investmentAddress")
 }
 
 type PoolLookup @entity {
@@ -144,6 +146,77 @@ type NFTPoolPositionSnapshot @entity {
   tokenPrice: BigDecimal! # snapshot of token price
   totalSupply: BigDecimal! # snapshot of total supply
   tokenBalance: BigDecimal! # snapshot of users token balance
+}
+
+type Trade @entity {
+  # transaction hash + "-" + index in trades array
+  id: ID!
+  investmentAddress: String!
+
+  swaps: [Swap]!
+  addLiquiditys: [AddLiquidity]!
+  removeLiquiditys: [RemoveLiquidity]!
+  stakes: [Stake]!
+  unstakes: [Unstake]!
+}
+
+type Swap @entity {
+  # Trade ID + "-" + index in swaps array
+  id: ID!
+  trade: Trade!
+  timestamp: BigInt! # need this to pull recent txns for specific pool or NFT pool
+
+  investmentAddress: String!
+  fromAsset: String!
+  toAsset: String!
+  amountSwapped: BigInt! # amount of source asset tokens
+}
+
+type AddLiquidity @entity {
+  # Trade ID + "-" + index in addLiquiditys array
+  id: ID!
+  trade: Trade!
+  timestamp: BigInt! # need this to pull recent txns for specific pool or NFT pool
+
+  investmentAddress: String!
+  tokenA: String!
+  tokenB: String!
+  amountA: BigInt!
+  amountB: BigInt!
+}
+
+type RemoveLiquidity @entity {
+  # Trade ID + "-" + index in removeLiquiditys array
+  id: ID!
+  trade: Trade!
+  timestamp: BigInt! # need this to pull recent txns for specific pool or NFT pool
+
+  investmentAddress: String!
+  tokenA: String!
+  tokenB: String!
+  numberOfLPTokens: BigInt!
+}
+
+type Stake @entity {
+  # Trade ID + "-" + index in stakes array
+  id: ID!
+  trade: Trade!
+  timestamp: BigInt! # need this to pull recent txns for specific pool or NFT pool
+
+  investmentAddress: String!
+  stakedToken: String!
+  amount: BigInt!
+}
+
+type Unstake @entity {
+  # Trade ID + "-" + index in unstakes array
+  id: ID!
+  trade: Trade!
+  timestamp: BigInt! # need this to pull recent txns for specific pool or NFT pool
+
+  investmentAddress: String!
+  stakedToken: String!
+  amount: BigInt!
 }
 
 type Transaction @entity {

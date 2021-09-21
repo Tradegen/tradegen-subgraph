@@ -67,6 +67,9 @@ templates:
           handler: handleWithdraw
         - event: MintedManagerFee(indexed address,indexed address,uint256,uint256)
           handler: handleMintedManagerFee
+      callHandlers:
+        - function: executeTransaction(address,bytes)
+          handler: handleExecuteTransaction
   - kind: ethereum/contract
     name: NFTPool
     network: celo
@@ -87,3 +90,6 @@ templates:
           handler: handleDeposit
         - event: Withdraw(indexed address,indexed address,uint256,uint256,address[],uint256[],uint256)
           handler: handleWithdraw
+      callHandlers:
+        - function: executeTransaction(address,bytes)
+          handler: handleExecuteTransaction
