@@ -254,21 +254,6 @@ export class Pool extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  _name(): string {
-    let result = super.call("_name", "_name():(string)", []);
-
-    return result[0].toString();
-  }
-
-  try__name(): ethereum.CallResult<string> {
-    let result = super.tryCall("_name", "_name():(string)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toString());
-  }
-
   _performanceFee(): BigInt {
     let result = super.call(
       "_performanceFee",

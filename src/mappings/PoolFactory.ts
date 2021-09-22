@@ -17,11 +17,12 @@ import {
   fetchPoolTokenPrice,
   ZERO_BD,
   ZERO_BI,
+  ONE_BI,
 } from "./helpers";
 
 export function handleNewPool(event: CreatedPool): void {
   // load Tradegen (create if first pool/NFTpool)
-  let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS);
+  let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS) as Tradegen;
   if (tradegen === null)
   {
     tradegen = new Tradegen(ADDRESS_RESOLVER_ADDRESS);
@@ -31,10 +32,10 @@ export function handleNewPool(event: CreatedPool): void {
     tradegen.totalValueLockedUSD = ZERO_BD;
     tradegen.txCount = ZERO_BI;
   }
-
+  
   tradegen.poolCount = tradegen.poolCount + 1;
   tradegen.save();
-
+  
   // create the pool
   let pool = new Pool(event.params.poolAddress.toHexString()) as Pool;
   pool.name = fetchPoolName(event.params.poolAddress);
@@ -45,7 +46,7 @@ export function handleNewPool(event: CreatedPool): void {
   pool.tradeVolumeUSD = ZERO_BD;
   pool.feesCollected = ZERO_BD;
   pool.totalValueLockedUSD = ZERO_BD;
-
+  
   let poolLookup = new PoolLookup(event.params.poolAddress.toHexString());
   poolLookup.poolAddress = event.params.poolAddress.toHexString();
 
@@ -65,7 +66,7 @@ export function handleNewPool(event: CreatedPool): void {
   }
 
   user.save();
-
+  
   // create the managed investment
   let managedInvestmentID = event.params.managerAddress.toHexString().concat("-").concat(event.params.poolAddress.toHexString());
   let managedInvestment = ManagedInvestment.load(managedInvestmentID) as ManagedInvestment;
@@ -77,7 +78,7 @@ export function handleNewPool(event: CreatedPool): void {
   }
 
   managedInvestment.save();
-
+  
   let poolTransaction = PoolTransaction.load(event.transaction.hash.toHexString()) as PoolTransaction;
   if (poolTransaction === null)
   {

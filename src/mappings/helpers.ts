@@ -1,4 +1,3 @@
-/* eslint-disable prefer-const */
 import {
   Address,
   BigDecimal,
@@ -158,15 +157,6 @@ export function fetchNFTPoolTotalSupply(NFTPoolAddress: Address): BigInt {
   let totalSupplyResult = contract.try_totalSupply();
 
   return totalSupplyResult.value ? totalSupplyResult.value : totalSupplyValue;
-}
-
-export function fetchNFTPoolAvailableTokens(NFTPoolAddress: Address): BigInt[] {
-  let contract = NFTPoolContract.bind(NFTPoolAddress);
-
-  let availableTokensValue = [new BigInt(0), new BigInt(0), new BigInt(0), new BigInt(0)];
-  let availableTokensResult = contract.try_getAvailableTokensPerClass();
-
-  return availableTokensResult.value ? [availableTokensResult.value[0], availableTokensResult.value[1], availableTokensResult.value[2], availableTokensResult.value[3]] : availableTokensValue;
 }
 
 export function createUser(address: Address): void {

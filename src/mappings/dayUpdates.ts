@@ -11,11 +11,11 @@ import { PoolHourData, NFTPoolHourData } from "../../generated/schema";
 import { ADDRESS_RESOLVER_ADDRESS, ONE_BI, ZERO_BD, ZERO_BI } from "./helpers";
 
 export function updateTradegenDayData(event: ethereum.Event): TradegenDayData {
-  let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS);
+  let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS) as Tradegen;
   let timestamp = event.block.timestamp.toI32();
   let dayID = timestamp / 86400;
   let dayStartTimestamp = dayID * 86400;
-  let tradegenDayData = TradegenDayData.load(dayID.toString());
+  let tradegenDayData = TradegenDayData.load(dayID.toString()) as TradegenDayData;
   if (tradegenDayData === null)
   {
     tradegenDayData = new TradegenDayData(dayID.toString());
@@ -42,8 +42,8 @@ export function updatePoolDayData(event: ethereum.Event): PoolDayData {
     .toHexString()
     .concat("-")
     .concat(BigInt.fromI32(dayID).toString());
-  let pool = Pool.load(event.address.toHexString());
-  let poolDayData = PoolDayData.load(dayPoolID);
+  let pool = Pool.load(event.address.toHexString()) as Pool;
+  let poolDayData = PoolDayData.load(dayPoolID) as PoolDayData;
   if (poolDayData === null) {
     poolDayData = new PoolDayData(dayPoolID);
     poolDayData.date = dayStartTimestamp;
@@ -69,8 +69,8 @@ export function updatePoolHourData(event: ethereum.Event): PoolHourData {
     .toHexString()
     .concat("-")
     .concat(BigInt.fromI32(hourIndex).toString());
-  let pool = Pool.load(event.address.toHexString());
-  let poolHourData = PoolHourData.load(hourPoolID);
+  let pool = Pool.load(event.address.toHexString()) as Pool;
+  let poolHourData = PoolHourData.load(hourPoolID) as PoolHourData;
   if (poolHourData === null) {
     poolHourData = new PoolHourData(hourPoolID);
     poolHourData.hourStartUnix = hourStartUnix;
@@ -100,8 +100,8 @@ export function updateNFTPoolDayData(event: ethereum.Event): NFTPoolDayData {
     .toHexString()
     .concat("-")
     .concat(BigInt.fromI32(dayID).toString());
-  let pool = NFTPool.load(event.address.toHexString());
-  let poolDayData = NFTPoolDayData.load(dayPoolID);
+  let pool = NFTPool.load(event.address.toHexString()) as NFTPool;
+  let poolDayData = NFTPoolDayData.load(dayPoolID) as NFTPoolDayData;
   if (poolDayData === null) {
     poolDayData = new NFTPoolDayData(dayPoolID);
     poolDayData.date = dayStartTimestamp;
@@ -127,8 +127,8 @@ export function updateNFTPoolHourData(event: ethereum.Event): NFTPoolHourData {
     .toHexString()
     .concat("-")
     .concat(BigInt.fromI32(hourIndex).toString());
-  let pool = NFTPool.load(event.address.toHexString());
-  let poolHourData = NFTPoolHourData.load(hourPoolID);
+  let pool = NFTPool.load(event.address.toHexString()) as NFTPool;
+  let poolHourData = NFTPoolHourData.load(hourPoolID) as NFTPoolHourData;
   if (poolHourData === null) {
     poolHourData = new NFTPoolHourData(hourPoolID);
     poolHourData.hourStartUnix = hourStartUnix;

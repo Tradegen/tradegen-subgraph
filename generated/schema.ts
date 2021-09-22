@@ -239,10 +239,6 @@ export class NFTPool extends Entity {
     this.set("seedPrice", Value.fromBigInt(BigInt.zero()));
     this.set("tokenPrice", Value.fromBigInt(BigInt.zero()));
     this.set("totalSupply", Value.fromBigInt(BigInt.zero()));
-    this.set("availableC1", Value.fromBigInt(BigInt.zero()));
-    this.set("availableC2", Value.fromBigInt(BigInt.zero()));
-    this.set("availableC3", Value.fromBigInt(BigInt.zero()));
-    this.set("availableC4", Value.fromBigInt(BigInt.zero()));
     this.set("tradeVolumeUSD", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("feesCollected", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("totalValueLockedUSD", Value.fromBigDecimal(BigDecimal.zero()));
@@ -326,42 +322,6 @@ export class NFTPool extends Entity {
 
   set totalSupply(value: BigInt) {
     this.set("totalSupply", Value.fromBigInt(value));
-  }
-
-  get availableC1(): BigInt {
-    let value = this.get("availableC1");
-    return value!.toBigInt();
-  }
-
-  set availableC1(value: BigInt) {
-    this.set("availableC1", Value.fromBigInt(value));
-  }
-
-  get availableC2(): BigInt {
-    let value = this.get("availableC2");
-    return value!.toBigInt();
-  }
-
-  set availableC2(value: BigInt) {
-    this.set("availableC2", Value.fromBigInt(value));
-  }
-
-  get availableC3(): BigInt {
-    let value = this.get("availableC3");
-    return value!.toBigInt();
-  }
-
-  set availableC3(value: BigInt) {
-    this.set("availableC3", Value.fromBigInt(value));
-  }
-
-  get availableC4(): BigInt {
-    let value = this.get("availableC4");
-    return value!.toBigInt();
-  }
-
-  set availableC4(value: BigInt) {
-    this.set("availableC4", Value.fromBigInt(value));
   }
 
   get tradeVolumeUSD(): BigDecimal {

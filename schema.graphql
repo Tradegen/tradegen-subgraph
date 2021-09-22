@@ -57,12 +57,6 @@ type NFTPool @entity {
   # used for other stats like marketcap
   totalSupply: BigInt!
 
-  # available tokens by class
-  availableC1: BigInt!
-  availableC2: BigInt!
-  availableC3: BigInt!
-  availableC4: BigInt!
-
   # pool specific volume
   tradeVolumeUSD: BigDecimal!
 

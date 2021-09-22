@@ -1,4 +1,4 @@
-specVersion: 0.22.0
+specVersion: 0.0.2
 description: Tradegen is a decentralized asset management and algo trading platform on Celo.
 repository: https://github.com/Tradegen/tradegen-subgraph
 schema:
@@ -6,7 +6,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: PoolFactory
-    network: celo
+    network: celo-alfajores
     source:
       address: "0xC71Ff58Efa2bffaE0f120BbfD7C64893aA20bDE0"
       abi: PoolFactory
@@ -26,7 +26,7 @@ dataSources:
           handler: handleNewPool
   - kind: ethereum/contract
     name: NFTPoolFactory
-    network: celo
+    network: celo-alfajores
     source:
       address: "0x2dB13ac7A21F42bcAaFC71C1f1F8c647AEBC9750"
       abi: NFTPoolFactory
@@ -47,7 +47,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: Pool
-    network: celo
+    network: celo-alfajores
     source:
       abi: Pool
     mapping:
@@ -69,7 +69,7 @@ templates:
           handler: handleMintedManagerFee
   - kind: ethereum/contract
     name: NFTPool
-    network: celo
+    network: celo-alfajores
     source:
       abi: NFTPool
     mapping:

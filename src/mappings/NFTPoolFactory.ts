@@ -16,7 +16,6 @@ import {
   fetchNFTPoolSeedPrice,
   fetchNFTPoolTotalSupply,
   fetchNFTPoolTokenPrice,
-  fetchNFTPoolAvailableTokens,
   ZERO_BD,
   ZERO_BI,
 } from "./helpers";
@@ -35,9 +34,7 @@ export function handleNewNFTPool(event: CreatedNFTPool): void {
 
   tradegen.NFTPoolCount = tradegen.NFTPoolCount + 1;
   tradegen.save();
-
-  let availableTokens = fetchNFTPoolAvailableTokens(event.params.poolAddress);
-
+  
   // create the NFT pool
   let pool = new NFTPool(event.params.poolAddress.toHexString()) as NFTPool;
   pool.name = fetchNFTPoolName(event.params.poolAddress);
@@ -46,14 +43,10 @@ export function handleNewNFTPool(event: CreatedNFTPool): void {
   pool.seedPrice = fetchNFTPoolSeedPrice(event.params.poolAddress);
   pool.tokenPrice = fetchNFTPoolTokenPrice(event.params.poolAddress);
   pool.totalSupply = fetchNFTPoolTotalSupply(event.params.poolAddress);
-  pool.availableC1 = availableTokens[0];
-  pool.availableC2 = availableTokens[1];
-  pool.availableC3 = availableTokens[2];
-  pool.availableC4 = availableTokens[3];
   pool.tradeVolumeUSD = ZERO_BD;
   pool.feesCollected = ZERO_BD;
   pool.totalValueLockedUSD = ZERO_BD;
-
+  
   let poolLookup = new NFTPoolLookup(event.params.poolAddress.toHexString());
   poolLookup.NFTPoolAddress = event.params.poolAddress.toHexString();
 
