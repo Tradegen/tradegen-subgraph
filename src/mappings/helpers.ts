@@ -24,6 +24,7 @@ import { NFTPoolFactory } from "../../generated/NFTPoolFactory/NFTPoolFactory";
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 export const POOL_FACTORY_ADDRESS = "0xC71Ff58Efa2bffaE0f120BbfD7C64893aA20bDE0";
 export const NFT_POOL_FACTORY_ADDRESS = "0x2dB13ac7A21F42bcAaFC71C1f1F8c647AEBC9750";
+export const ADDRESS_RESOLVER_ADDRESS = "0x32432FFE7E23885DF303eA41ECEe1e31aC8652a2";
 
 export let ZERO_BI = BigInt.fromI32(0);
 export let ONE_BI = BigInt.fromI32(1);

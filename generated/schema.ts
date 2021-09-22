@@ -235,6 +235,15 @@ export class Pool extends Entity {
   set trades(value: Array<string>) {
     this.set("trades", Value.fromStringArray(value));
   }
+
+  get transactions(): Array<string> {
+    let value = this.get("transactions");
+    return value!.toStringArray();
+  }
+
+  set transactions(value: Array<string>) {
+    this.set("transactions", Value.fromStringArray(value));
+  }
 }
 
 export class NFTPool extends Entity {
@@ -426,6 +435,15 @@ export class NFTPool extends Entity {
   set trades(value: Array<string>) {
     this.set("trades", Value.fromStringArray(value));
   }
+
+  get transactions(): Array<string> {
+    let value = this.get("transactions");
+    return value!.toStringArray();
+  }
+
+  set transactions(value: Array<string>) {
+    this.set("transactions", Value.fromStringArray(value));
+  }
 }
 
 export class PoolLookup extends Entity {
@@ -551,58 +569,31 @@ export class User extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get poolPositions(): Array<string> | null {
+  get poolPositions(): Array<string> {
     let value = this.get("poolPositions");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
+    return value!.toStringArray();
   }
 
-  set poolPositions(value: Array<string> | null) {
-    if (!value) {
-      this.unset("poolPositions");
-    } else {
-      this.set("poolPositions", Value.fromStringArray(<Array<string>>value));
-    }
+  set poolPositions(value: Array<string>) {
+    this.set("poolPositions", Value.fromStringArray(value));
   }
 
-  get NFTPoolPositions(): Array<string> | null {
+  get NFTPoolPositions(): Array<string> {
     let value = this.get("NFTPoolPositions");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
+    return value!.toStringArray();
   }
 
-  set NFTPoolPositions(value: Array<string> | null) {
-    if (!value) {
-      this.unset("NFTPoolPositions");
-    } else {
-      this.set("NFTPoolPositions", Value.fromStringArray(<Array<string>>value));
-    }
+  set NFTPoolPositions(value: Array<string>) {
+    this.set("NFTPoolPositions", Value.fromStringArray(value));
   }
 
-  get managedInvestments(): Array<string> | null {
+  get managedInvestments(): Array<string> {
     let value = this.get("managedInvestments");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
+    return value!.toStringArray();
   }
 
-  set managedInvestments(value: Array<string> | null) {
-    if (!value) {
-      this.unset("managedInvestments");
-    } else {
-      this.set(
-        "managedInvestments",
-        Value.fromStringArray(<Array<string>>value)
-      );
-    }
+  set managedInvestments(value: Array<string>) {
+    this.set("managedInvestments", Value.fromStringArray(value));
   }
 
   get feesEarned(): BigDecimal {
@@ -1161,88 +1152,88 @@ export class Trade extends Entity {
     }
   }
 
-  get swap(): Array<string> | null {
+  get swap(): string | null {
     let value = this.get("swap");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toStringArray();
+      return value.toString();
     }
   }
 
-  set swap(value: Array<string> | null) {
+  set swap(value: string | null) {
     if (!value) {
       this.unset("swap");
     } else {
-      this.set("swap", Value.fromStringArray(<Array<string>>value));
+      this.set("swap", Value.fromString(<string>value));
     }
   }
 
-  get addLiquiditys(): Array<string> | null {
+  get addLiquiditys(): string | null {
     let value = this.get("addLiquiditys");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toStringArray();
+      return value.toString();
     }
   }
 
-  set addLiquiditys(value: Array<string> | null) {
+  set addLiquiditys(value: string | null) {
     if (!value) {
       this.unset("addLiquiditys");
     } else {
-      this.set("addLiquiditys", Value.fromStringArray(<Array<string>>value));
+      this.set("addLiquiditys", Value.fromString(<string>value));
     }
   }
 
-  get removeLiquiditys(): Array<string> | null {
+  get removeLiquiditys(): string | null {
     let value = this.get("removeLiquiditys");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toStringArray();
+      return value.toString();
     }
   }
 
-  set removeLiquiditys(value: Array<string> | null) {
+  set removeLiquiditys(value: string | null) {
     if (!value) {
       this.unset("removeLiquiditys");
     } else {
-      this.set("removeLiquiditys", Value.fromStringArray(<Array<string>>value));
+      this.set("removeLiquiditys", Value.fromString(<string>value));
     }
   }
 
-  get stakes(): Array<string> | null {
+  get stakes(): string | null {
     let value = this.get("stakes");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toStringArray();
+      return value.toString();
     }
   }
 
-  set stakes(value: Array<string> | null) {
+  set stakes(value: string | null) {
     if (!value) {
       this.unset("stakes");
     } else {
-      this.set("stakes", Value.fromStringArray(<Array<string>>value));
+      this.set("stakes", Value.fromString(<string>value));
     }
   }
 
-  get unstakes(): Array<string> | null {
+  get unstakes(): string | null {
     let value = this.get("unstakes");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toStringArray();
+      return value.toString();
     }
   }
 
-  set unstakes(value: Array<string> | null) {
+  set unstakes(value: string | null) {
     if (!value) {
       this.unset("unstakes");
     } else {
-      this.set("unstakes", Value.fromStringArray(<Array<string>>value));
+      this.set("unstakes", Value.fromString(<string>value));
     }
   }
 }
@@ -1707,103 +1698,13 @@ export class Unstake extends Entity {
   }
 }
 
-export class Transaction extends Entity {
+export class PoolTransaction extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
 
     this.set("blockNumber", Value.fromBigInt(BigInt.zero()));
     this.set("timestamp", Value.fromBigInt(BigInt.zero()));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save Transaction entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        "Cannot save Transaction entity with non-string ID. " +
-          'Considering using .toHex() to convert the "id" to a string.'
-      );
-      store.set("Transaction", id.toString(), this);
-    }
-  }
-
-  static load(id: string): Transaction | null {
-    return changetype<Transaction | null>(store.get("Transaction", id));
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value!.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get blockNumber(): BigInt {
-    let value = this.get("blockNumber");
-    return value!.toBigInt();
-  }
-
-  set blockNumber(value: BigInt) {
-    this.set("blockNumber", Value.fromBigInt(value));
-  }
-
-  get timestamp(): BigInt {
-    let value = this.get("timestamp");
-    return value!.toBigInt();
-  }
-
-  set timestamp(value: BigInt) {
-    this.set("timestamp", Value.fromBigInt(value));
-  }
-
-  get poolTransactions(): Array<string> | null {
-    let value = this.get("poolTransactions");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
-  }
-
-  set poolTransactions(value: Array<string> | null) {
-    if (!value) {
-      this.unset("poolTransactions");
-    } else {
-      this.set("poolTransactions", Value.fromStringArray(<Array<string>>value));
-    }
-  }
-
-  get NFTPoolTransactions(): Array<string> | null {
-    let value = this.get("NFTPoolTransactions");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
-  }
-
-  set NFTPoolTransactions(value: Array<string> | null) {
-    if (!value) {
-      this.unset("NFTPoolTransactions");
-    } else {
-      this.set(
-        "NFTPoolTransactions",
-        Value.fromStringArray(<Array<string>>value)
-      );
-    }
-  }
-}
-
-export class PoolTransaction extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-
-    this.set("transaction", Value.fromString(""));
     this.set("pool", Value.fromString(""));
   }
 
@@ -1833,13 +1734,22 @@ export class PoolTransaction extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get transaction(): string {
-    let value = this.get("transaction");
-    return value!.toString();
+  get blockNumber(): BigInt {
+    let value = this.get("blockNumber");
+    return value!.toBigInt();
   }
 
-  set transaction(value: string) {
-    this.set("transaction", Value.fromString(value));
+  set blockNumber(value: BigInt) {
+    this.set("blockNumber", Value.fromBigInt(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value!.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
   }
 
   get pool(): string {
@@ -1851,71 +1761,71 @@ export class PoolTransaction extends Entity {
     this.set("pool", Value.fromString(value));
   }
 
-  get creates(): Array<string> | null {
+  get creates(): string | null {
     let value = this.get("creates");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toStringArray();
+      return value.toString();
     }
   }
 
-  set creates(value: Array<string> | null) {
+  set creates(value: string | null) {
     if (!value) {
       this.unset("creates");
     } else {
-      this.set("creates", Value.fromStringArray(<Array<string>>value));
+      this.set("creates", Value.fromString(<string>value));
     }
   }
 
-  get invests(): Array<string> | null {
+  get invests(): string | null {
     let value = this.get("invests");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toStringArray();
+      return value.toString();
     }
   }
 
-  set invests(value: Array<string> | null) {
+  set invests(value: string | null) {
     if (!value) {
       this.unset("invests");
     } else {
-      this.set("invests", Value.fromStringArray(<Array<string>>value));
+      this.set("invests", Value.fromString(<string>value));
     }
   }
 
-  get withdraws(): Array<string> | null {
+  get withdraws(): string | null {
     let value = this.get("withdraws");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toStringArray();
+      return value.toString();
     }
   }
 
-  set withdraws(value: Array<string> | null) {
+  set withdraws(value: string | null) {
     if (!value) {
       this.unset("withdraws");
     } else {
-      this.set("withdraws", Value.fromStringArray(<Array<string>>value));
+      this.set("withdraws", Value.fromString(<string>value));
     }
   }
 
-  get mintFees(): Array<string> | null {
+  get mintFees(): string | null {
     let value = this.get("mintFees");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toStringArray();
+      return value.toString();
     }
   }
 
-  set mintFees(value: Array<string> | null) {
+  set mintFees(value: string | null) {
     if (!value) {
       this.unset("mintFees");
     } else {
-      this.set("mintFees", Value.fromStringArray(<Array<string>>value));
+      this.set("mintFees", Value.fromString(<string>value));
     }
   }
 }
@@ -1925,8 +1835,9 @@ export class NFTPoolTransaction extends Entity {
     super();
     this.set("id", Value.fromString(id));
 
-    this.set("transaction", Value.fromString(""));
-    this.set("pool", Value.fromString(""));
+    this.set("blockNumber", Value.fromBigInt(BigInt.zero()));
+    this.set("timestamp", Value.fromBigInt(BigInt.zero()));
+    this.set("NFTPool", Value.fromString(""));
   }
 
   save(): void {
@@ -1957,72 +1868,81 @@ export class NFTPoolTransaction extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get transaction(): string {
-    let value = this.get("transaction");
+  get blockNumber(): BigInt {
+    let value = this.get("blockNumber");
+    return value!.toBigInt();
+  }
+
+  set blockNumber(value: BigInt) {
+    this.set("blockNumber", Value.fromBigInt(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value!.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get NFTPool(): string {
+    let value = this.get("NFTPool");
     return value!.toString();
   }
 
-  set transaction(value: string) {
-    this.set("transaction", Value.fromString(value));
+  set NFTPool(value: string) {
+    this.set("NFTPool", Value.fromString(value));
   }
 
-  get pool(): string {
-    let value = this.get("pool");
-    return value!.toString();
-  }
-
-  set pool(value: string) {
-    this.set("pool", Value.fromString(value));
-  }
-
-  get creates(): Array<string> | null {
+  get creates(): string | null {
     let value = this.get("creates");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toStringArray();
+      return value.toString();
     }
   }
 
-  set creates(value: Array<string> | null) {
+  set creates(value: string | null) {
     if (!value) {
       this.unset("creates");
     } else {
-      this.set("creates", Value.fromStringArray(<Array<string>>value));
+      this.set("creates", Value.fromString(<string>value));
     }
   }
 
-  get invests(): Array<string> | null {
+  get invests(): string | null {
     let value = this.get("invests");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toStringArray();
+      return value.toString();
     }
   }
 
-  set invests(value: Array<string> | null) {
+  set invests(value: string | null) {
     if (!value) {
       this.unset("invests");
     } else {
-      this.set("invests", Value.fromStringArray(<Array<string>>value));
+      this.set("invests", Value.fromString(<string>value));
     }
   }
 
-  get withdraws(): Array<string> | null {
+  get withdraws(): string | null {
     let value = this.get("withdraws");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toStringArray();
+      return value.toString();
     }
   }
 
-  set withdraws(value: Array<string> | null) {
+  set withdraws(value: string | null) {
     if (!value) {
       this.unset("withdraws");
     } else {
-      this.set("withdraws", Value.fromStringArray(<Array<string>>value));
+      this.set("withdraws", Value.fromString(<string>value));
     }
   }
 }

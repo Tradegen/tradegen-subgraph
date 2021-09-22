@@ -42,6 +42,7 @@ type Pool @entity {
   poolDayData: [PoolDayData!]! @derivedFrom(field: "pool")
   positions: [AssetPosition!]! @derivedFrom(field: "pool")
   trades: [Trade!]! @derivedFrom(field: "pool")
+  transactions: [PoolTransaction!]! @derivedFrom(field: "pool")
 }
 
 type NFTPool @entity {
@@ -77,6 +78,7 @@ type NFTPool @entity {
   poolDayData: [NFTPoolDayData!]! @derivedFrom(field: "NFTPool")
   positions: [AssetPosition!]! @derivedFrom(field: "NFTPool")
   trades: [Trade!]! @derivedFrom(field: "NFTPool")
+  transactions: [NFTPoolTransaction!]! @derivedFrom(field: "NFTPool")
 }
 
 type PoolLookup @entity {
@@ -91,9 +93,9 @@ type NFTPoolLookup @entity {
 
 type User @entity {
   id: ID!
-  poolPositions: [PoolPosition!] @derivedFrom(field: "user")
-  NFTPoolPositions: [NFTPoolPosition!] @derivedFrom(field: "user")
-  managedInvestments: [ManagedInvestment!] @derivedFrom(field: "manager")
+  poolPositions: [PoolPosition!]! @derivedFrom(field: "user")
+  NFTPoolPositions: [NFTPoolPosition!]! @derivedFrom(field: "user")
+  managedInvestments: [ManagedInvestment!]! @derivedFrom(field: "manager")
   feesEarned: BigDecimal!
   feesPaid: BigDecimal!
 }
@@ -154,11 +156,11 @@ type Trade @entity {
   pool: Pool
   NFTPool: NFTPool
 
-  swap: [Swap!]
-  addLiquiditys: [AddLiquidity!]
-  removeLiquiditys: [RemoveLiquidity!]
-  stakes: [Stake!]
-  unstakes: [Unstake!]
+  swap: Swap
+  addLiquiditys: AddLiquidity
+  removeLiquiditys: RemoveLiquidity
+  stakes: Stake
+  unstakes: Unstake
 }
 
 type Swap @entity {
@@ -220,33 +222,27 @@ type Unstake @entity {
   amount: BigInt!
 }
 
-type Transaction @entity {
-  id: ID! # txn hash
+type PoolTransaction @entity {
+  # transaction hash + "-" + index in transactions array
+  id: ID!
   blockNumber: BigInt!
   timestamp: BigInt!
-  poolTransactions: [PoolTransaction!]
-  NFTPoolTransactions: [NFTPoolTransaction!]
-}
-
-type PoolTransaction @entity {
-  # transaction hash + "-" + index in poolTransactions Transaction array
-  id: ID!
-  transaction: Transaction!
   pool: Pool!
-  creates: [CreatePool!]
-  invests: [InvestPool!]
-  withdraws: [WithdrawPool!]
-  mintFees: [MintFeePool!]
+  creates: CreatePool
+  invests: InvestPool
+  withdraws: WithdrawPool
+  mintFees: MintFeePool
 }
 
 type NFTPoolTransaction @entity {
-  # transaction hash + "-" + index in NFTPoolTransactions Transaction array
+  # transaction hash + "-" + index in transactions array
   id: ID!
-  transaction: Transaction!
-  pool: Pool!
-  creates: [CreatePool!]
-  invests: [InvestPool!]
-  withdraws: [WithdrawPool!]
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  NFTPool: NFTPool!
+  creates: CreatePool
+  invests: InvestPool
+  withdraws: WithdrawPool
 }
 
 type CreatePool @entity {
