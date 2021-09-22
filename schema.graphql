@@ -40,8 +40,6 @@ type Pool @entity {
 
   # derived fields
   poolDayData: [PoolDayData!]! @derivedFrom(field: "pool")
-  positions: [AssetPosition!]! @derivedFrom(field: "pool")
-  trades: [Trade!]! @derivedFrom(field: "pool")
   transactions: [PoolTransaction!]! @derivedFrom(field: "pool")
 }
 
@@ -76,8 +74,6 @@ type NFTPool @entity {
 
   # derived fields
   poolDayData: [NFTPoolDayData!]! @derivedFrom(field: "NFTPool")
-  positions: [AssetPosition!]! @derivedFrom(field: "NFTPool")
-  trades: [Trade!]! @derivedFrom(field: "NFTPool")
   transactions: [NFTPoolTransaction!]! @derivedFrom(field: "NFTPool")
 }
 
@@ -97,129 +93,22 @@ type User @entity {
   NFTPoolPositions: [NFTPoolPosition!]! @derivedFrom(field: "user")
   managedInvestments: [ManagedInvestment!]! @derivedFrom(field: "manager")
   feesEarned: BigDecimal!
-  feesPaid: BigDecimal!
 }
 
 type PoolPosition @entity {
   id: ID!
   user: User!
   pool: Pool!
-  tokenBalance: BigInt!
-  averagePrice: BigInt!
+  tokenBalance: BigDecimal!
+  averagePrice: BigDecimal!
 }
 
 type NFTPoolPosition @entity {
   id: ID!
   user: User!
   NFTPool: NFTPool!
-  tokenBalance: BigInt!
-  averagePrice: BigInt!
-}
-
-type AssetPosition @entity {
-  id: ID!
-  pool: Pool
-  NFTPool: NFTPool
-  tokenAddress: String!
   tokenBalance: BigDecimal!
-}
-
-# saved over time for return calculations, gets created and never updated
-type PoolPositionSnapshot @entity {
-  id: ID!
-  poolPosition: PoolPosition!
-  timestamp: Int! # saved for fast historical lookups
-  block: Int! # saved for fast historical lookups
-  user: User! # reference to user
-  pool: Pool! # reference to pool
-  tokenPrice: BigInt! # snapshot of token price
-  totalSupply: BigInt! # snapshot of total supply
-  tokenBalance: BigInt! # snapshot of users token balance
-}
-
-# saved over time for return calculations, gets created and never updated
-type NFTPoolPositionSnapshot @entity {
-  id: ID!
-  NFTPoolPosition: NFTPoolPosition!
-  timestamp: Int! # saved for fast historical lookups
-  block: Int! # saved for fast historical lookups
-  user: User! # reference to user
-  NFTPool: NFTPool! # reference to NFT pool
-  tokenPrice: BigInt! # snapshot of token price
-  totalSupply: BigInt! # snapshot of total supply
-  tokenBalance: BigInt! # snapshot of users token balance
-}
-
-type Trade @entity {
-  # transaction hash + "-" + index in trades array
-  id: ID!
-  pool: Pool
-  NFTPool: NFTPool
-
-  swap: Swap
-  addLiquiditys: AddLiquidity
-  removeLiquiditys: RemoveLiquidity
-  stakes: Stake
-  unstakes: Unstake
-}
-
-type Swap @entity {
-  # Trade ID + "-" + index in swaps array
-  id: ID!
-  trade: Trade!
-  timestamp: BigInt! # need this to pull recent txns for specific pool or NFT pool
-
-  investmentAddress: String!
-  fromAsset: String!
-  toAsset: String!
-  amountSwapped: BigInt! # amount of source asset tokens
-}
-
-type AddLiquidity @entity {
-  # Trade ID + "-" + index in addLiquiditys array
-  id: ID!
-  trade: Trade!
-  timestamp: BigInt! # need this to pull recent txns for specific pool or NFT pool
-
-  investmentAddress: String!
-  tokenA: String!
-  tokenB: String!
-  amountA: BigInt!
-  amountB: BigInt!
-}
-
-type RemoveLiquidity @entity {
-  # Trade ID + "-" + index in removeLiquiditys array
-  id: ID!
-  trade: Trade!
-  timestamp: BigInt! # need this to pull recent txns for specific pool or NFT pool
-
-  investmentAddress: String!
-  tokenA: String!
-  tokenB: String!
-  numberOfLPTokens: BigInt!
-}
-
-type Stake @entity {
-  # Trade ID + "-" + index in stakes array
-  id: ID!
-  trade: Trade!
-  timestamp: BigInt! # need this to pull recent txns for specific pool or NFT pool
-
-  investmentAddress: String!
-  stakedToken: String!
-  amount: BigInt!
-}
-
-type Unstake @entity {
-  # Trade ID + "-" + index in unstakes array
-  id: ID!
-  trade: Trade!
-  timestamp: BigInt! # need this to pull recent txns for specific pool or NFT pool
-
-  investmentAddress: String!
-  stakedToken: String!
-  amount: BigInt!
+  averagePrice: BigDecimal!
 }
 
 type PoolTransaction @entity {
@@ -326,12 +215,6 @@ type MintFeePool @entity {
   managerAddress: String!
   poolAddress: String!
   feesMinted: BigInt! # number of pool tokens minted as performance fee
-}
-
-# stores for USD calculations
-type Bundle @entity {
-  id: ID!
-  celoPrice: BigDecimal! # price of Celo-cUSD
 }
 
 type ManagedInvestment @entity {

@@ -1,25 +1,18 @@
-import { Address, BigDecimal, BigInt, store } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import {
-  InvestPool as InvestPoolEvent,
+  DepositPool as DepositPoolEvent,
   WithdrawPool as WithdrawPoolEvent,
   MintFeePool as MintFeePoolEvent,
-  Trade,
-  Swap as SwapCall,
-  AddLiquidity as AddLiquidityCall,
-  RemoveLiquidity as RemoveLiquidityCall,
-  Stake as StakeCall,
-  Unstake as UnstakeCall,
   Pool,
   User,
   PoolTransaction,
-  AssetPosition,
-  Tradegen,
+  PoolPosition,
+  Tradegen
 } from "../../generated/schema";
 import {
   Deposit,
   Withdraw,
   MintedManagerFee,
-  Pool as PoolContract,
 } from "../../generated/templates/Pool/Pool";
 import {
   updatePoolDayData,
@@ -29,20 +22,10 @@ import {
 import {
   fetchPoolTokenPrice,
   fetchPoolTotalSupply,
-  ADDRESS_ZERO,
-  createPoolPosition,
-  createPoolPositionSnapshot,
-  createUser,
   ADDRESS_RESOLVER_ADDRESS,
   ONE_BI,
-  ZERO_BD,
+  ZERO_BD
 } from "./helpers";
-import {
-  findUsdPerToken,
-  getCeloPriceInUSD,
-  getTrackedLiquidityUSD,
-  getTrackedVolumeUSD,
-} from "./pricing";
 
 export function handleDeposit(event: Deposit): void {
     let pool = Pool.load(event.address.toHexString());
@@ -70,108 +53,214 @@ export function handleDeposit(event: Deposit): void {
       transaction.blockNumber = event.block.number;
       transaction.timestamp = event.block.timestamp;
       transaction.pool = event.address.toHexString();
-      transaction.mints = [];
-      transaction.swaps = [];
-      transaction.burns = [];
     }
-    let swaps = transaction.swaps;
-    let swap = new SwapEvent(
-      event.transaction.hash
-        .toHexString()
-        .concat("-")
-        .concat(BigInt.fromI32(swaps.length).toString())
-    );
-  
-    // update swap event
-    swap.transaction = transaction.id;
-    swap.pair = pair.id;
-    swap.timestamp = transaction.timestamp;
-    swap.transaction = transaction.id;
-    swap.sender = event.params.sender;
-    swap.amount0In = amount0In;
-    swap.amount1In = amount1In;
-    swap.amount0Out = amount0Out;
-    swap.amount1Out = amount1Out;
-    swap.to = event.params.to;
-    swap.from = event.transaction.from;
-    swap.logIndex = event.logIndex;
-    // use the tracked amount if we have it
-    swap.amountUSD =
-      trackedAmountUSD === ZERO_BD ? derivedAmountCUSD : trackedAmountUSD;
-    swap.save();
-  
+
+    // update deposit event
+    let deposit = new DepositPoolEvent(event.transaction.hash.toHexString().concat("-deposit"));
+    deposit.poolTransaction = transaction.id;
+    deposit.timestamp = transaction.timestamp;
+    deposit.userAddress = event.params.userAddress.toHexString();
+    deposit.poolAddress = event.address.toHexString();
+    deposit.amount = event.params.amount;
+    deposit.save();
+    
     // update the transaction
-  
-    // TODO: Consider using .concat() for handling array updates to protect
-    // against unintended side effects for other code paths.
-    swaps.push(swap.id);
-    transaction.swaps = swaps;
+    transaction.deposit = deposit.id;
     transaction.save();
   
     // update day entities
-    let pairDayData = updatePairDayData(event);
-    let pairHourData = updatePairHourData(event);
-    let ubeswapDayData = updateUbeswapDayData(event);
-    let token0DayData = updateTokenDayData(token0 as Token, event);
-    let token1DayData = updateTokenDayData(token1 as Token, event);
+    let poolDayData = updatePoolDayData(event);
+    let poolHourData = updatePoolHourData(event);
+    let tradegenDayData = updateTradegenDayData(event);
   
-    // swap specific updating
-    ubeswapDayData.dailyVolumeUSD = ubeswapDayData.dailyVolumeUSD.plus(
-      trackedAmountUSD
-    );
-    ubeswapDayData.dailyVolumeCELO = ubeswapDayData.dailyVolumeCELO.plus(
-      trackedAmountCELO
-    );
-    ubeswapDayData.dailyVolumeUntracked = ubeswapDayData.dailyVolumeUntracked.plus(
-      derivedAmountCUSD
-    );
-    ubeswapDayData.save();
+    // deposit specific updating
+    tradegenDayData.dailyVolumeUSD = tradegenDayData.dailyVolumeUSD.plus(new BigDecimal(event.params.amount));
+    tradegenDayData.save();
   
-    // swap specific updating for pair
-    pairDayData.dailyVolumeToken0 = pairDayData.dailyVolumeToken0.plus(
-      amount0Total
-    );
-    pairDayData.dailyVolumeToken1 = pairDayData.dailyVolumeToken1.plus(
-      amount1Total
-    );
-    pairDayData.dailyVolumeUSD = pairDayData.dailyVolumeUSD.plus(
-      trackedAmountUSD
-    );
-    pairDayData.save();
+    // deposit specific updating for pool
+    poolDayData.dailyVolumeUSD = poolDayData.dailyVolumeUSD.plus(new BigDecimal(event.params.amount));
+    poolDayData.save();
   
-    // update hourly pair data
-    pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(
-      amount0Total
-    );
-    pairHourData.hourlyVolumeToken1 = pairHourData.hourlyVolumeToken1.plus(
-      amount1Total
-    );
-    pairHourData.hourlyVolumeUSD = pairHourData.hourlyVolumeUSD.plus(
-      trackedAmountUSD
-    );
-    pairHourData.save();
+    // update hourly pool data
+    poolHourData.hourlyVolumeUSD = poolHourData.hourlyVolumeUSD.plus(new BigDecimal(event.params.amount));
+    poolHourData.save();
+
+    let poolPosition = PoolPosition.load(event.address.toHexString().concat("-").concat(event.params.userAddress.toHexString()));
+    if (poolPosition === null)
+    {
+        poolPosition = new PoolPosition(event.address.toHexString().concat("-").concat(event.params.userAddress.toHexString()));
+        poolPosition.user = event.params.userAddress.toHexString();
+        poolPosition.pool = event.address.toHexString();
+        poolPosition.tokenBalance = ZERO_BD;
+        poolPosition.averagePrice = ZERO_BD;
+    }
+
+    let investedAmount = (poolPosition.tokenBalance).times(poolPosition.averagePrice).div(new BigDecimal(new BigInt(1e18)));
+    let tokensAdded = (new BigDecimal(event.params.amount)).div(new BigDecimal(tokenPrice));
+    let newAveragePrice = (investedAmount.plus(new BigDecimal(event.params.amount))).div(poolPosition.tokenBalance.plus(tokensAdded));
+
+    poolPosition.averagePrice = newAveragePrice;
+    poolPosition.tokenBalance = poolPosition.tokenBalance.plus(tokensAdded);
+    poolPosition.save();
+
+    // create the user
+    let user = User.load(event.params.userAddress.toHexString()) as User;
+    if (user === null)
+    {
+        user = new User(event.params.userAddress.toHexString());
+        user.feesEarned = ZERO_BD;
+    }
+
+    user.save();
+}
+
+export function handleWithdraw(event: Withdraw): void {
+    let pool = Pool.load(event.address.toHexString());
+
+    let totalSupply = fetchPoolTotalSupply(event.address);
+    let tokenPrice = fetchPoolTokenPrice(event.address);
   
-    // swap specific updating for token0
-    token0DayData.dailyVolumeToken = token0DayData.dailyVolumeToken.plus(
-      amount0Total
-    );
-    token0DayData.dailyVolumeUSD = token0DayData.dailyVolumeUSD.plus(
-      amount0Total.times(token1.derivedCUSD as BigDecimal)
-    );
-    token0DayData.dailyVolumeCELO = token0DayData.dailyVolumeCELO.plus(
-      amount0Total.times(token0.derivedCUSD as BigDecimal).times(bundle.celoPrice)
-    );
-    token0DayData.save();
+    // update pool data
+    pool.tokenPrice = tokenPrice;
+    pool.totalSupply = totalSupply;
+    pool.tradeVolumeUSD = pool.tradeVolumeUSD.plus(new BigDecimal(event.params.valueWithdrawn));
+    pool.totalValueLockedUSD = pool.totalValueLockedUSD.minus(new BigDecimal(event.params.valueWithdrawn));
+    pool.save();
   
-    // swap specific updating
-    token1DayData.dailyVolumeToken = token1DayData.dailyVolumeToken.plus(
-      amount1Total
-    );
-    token1DayData.dailyVolumeUSD = token1DayData.dailyVolumeUSD.plus(
-      amount1Total.times(token1.derivedCUSD as BigDecimal)
-    );
-    token1DayData.dailyVolumeUSD = token1DayData.dailyVolumeUSD.plus(
-      amount1Total.times(token1.derivedCUSD as BigDecimal).times(bundle.celoPrice)
-    );
-    token1DayData.save();
-  }
+    // update global values
+    let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS);
+    tradegen.totalVolumeUSD = tradegen.totalVolumeUSD.plus(new BigDecimal(event.params.valueWithdrawn));
+    tradegen.totalValueLockedUSD = tradegen.totalValueLockedUSD.minus(new BigDecimal(event.params.valueWithdrawn));
+    tradegen.txCount = tradegen.txCount.plus(ONE_BI);
+    tradegen.save();
+  
+    let transaction = PoolTransaction.load(event.transaction.hash.toHexString());
+    if (transaction === null) {
+      transaction = new PoolTransaction(event.transaction.hash.toHexString());
+      transaction.blockNumber = event.block.number;
+      transaction.timestamp = event.block.timestamp;
+      transaction.pool = event.address.toHexString();
+    }
+
+    // update withdraw event
+    let withdraw = new WithdrawPoolEvent(event.transaction.hash.toHexString().concat("-withdraw"));
+    withdraw.poolTransaction = transaction.id;
+    withdraw.timestamp = transaction.timestamp;
+    withdraw.userAddress = event.params.userAddress.toHexString();
+    withdraw.poolAddress = event.address.toHexString();
+    withdraw.tokenAmount = event.params.numberOfPoolTokens;
+    withdraw.USDAmount = event.params.valueWithdrawn;
+    withdraw.save();
+    
+    // update the transaction
+    transaction.withdraw = withdraw.id;
+    transaction.save();
+  
+    // update day entities
+    let poolDayData = updatePoolDayData(event);
+    let poolHourData = updatePoolHourData(event);
+    let tradegenDayData = updateTradegenDayData(event);
+  
+    // deposit specific updating
+    tradegenDayData.dailyVolumeUSD = tradegenDayData.dailyVolumeUSD.plus(new BigDecimal(event.params.valueWithdrawn));
+    tradegenDayData.save();
+  
+    // deposit specific updating for pool
+    poolDayData.dailyVolumeUSD = poolDayData.dailyVolumeUSD.plus(new BigDecimal(event.params.valueWithdrawn));
+    poolDayData.save();
+  
+    // update hourly pool data
+    poolHourData.hourlyVolumeUSD = poolHourData.hourlyVolumeUSD.plus(new BigDecimal(event.params.valueWithdrawn));
+    poolHourData.save();
+
+    let poolPosition = PoolPosition.load(event.address.toHexString().concat("-").concat(event.params.userAddress.toHexString()));
+    if (poolPosition === null)
+    {
+        poolPosition = new PoolPosition(event.address.toHexString().concat("-").concat(event.params.userAddress.toHexString()));
+        poolPosition.user = event.params.userAddress.toHexString();
+        poolPosition.pool = event.address.toHexString();
+        poolPosition.tokenBalance = ZERO_BD;
+        poolPosition.averagePrice = ZERO_BD;
+    }
+
+    let investedAmount = (poolPosition.tokenBalance).times(poolPosition.averagePrice).div(new BigDecimal(new BigInt(1e18)));
+    let newAveragePrice = (new BigDecimal(event.params.numberOfPoolTokens) >= poolPosition.tokenBalance) ?
+                            ZERO_BD :
+                            (investedAmount.minus(new BigDecimal(event.params.valueWithdrawn))).div(poolPosition.tokenBalance.minus(new BigDecimal(event.params.numberOfPoolTokens)));
+
+    poolPosition.averagePrice = newAveragePrice;
+    poolPosition.tokenBalance = poolPosition.tokenBalance.minus(new BigDecimal(event.params.numberOfPoolTokens));
+    poolPosition.save();
+}
+
+export function handleMintedManagerFee(event: MintedManagerFee): void {
+    let pool = Pool.load(event.address.toHexString());
+
+    let totalSupply = fetchPoolTotalSupply(event.address);
+    let tokenPrice = fetchPoolTokenPrice(event.address);
+    let feeInUSD = (new BigDecimal(event.params.amount)).times(new BigDecimal(tokenPrice)).div(new BigDecimal(new BigInt(1e18)));
+  
+    // update pool data
+    pool.tokenPrice = tokenPrice;
+    pool.totalSupply = totalSupply;
+    pool.tradeVolumeUSD = pool.tradeVolumeUSD.plus(feeInUSD);
+    pool.totalValueLockedUSD = pool.totalValueLockedUSD.plus(feeInUSD);
+    pool.save();
+  
+    // update global values
+    let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS);
+    tradegen.totalVolumeUSD = tradegen.totalVolumeUSD.plus(feeInUSD);
+    tradegen.totalValueLockedUSD = tradegen.totalValueLockedUSD.plus(feeInUSD);
+    tradegen.txCount = tradegen.txCount.plus(ONE_BI);
+    tradegen.save();
+  
+    let transaction = PoolTransaction.load(event.transaction.hash.toHexString());
+    if (transaction === null) {
+      transaction = new PoolTransaction(event.transaction.hash.toHexString());
+      transaction.blockNumber = event.block.number;
+      transaction.timestamp = event.block.timestamp;
+      transaction.pool = event.address.toHexString();
+    }
+
+    // update mint event
+    let mint = new MintFeePoolEvent(event.transaction.hash.toHexString().concat("-mintFee"));
+    mint.poolTransaction = transaction.id;
+    mint.timestamp = transaction.timestamp;
+    mint.managerAddress = event.params.manager.toHexString();
+    mint.poolAddress = event.address.toHexString();
+    mint.feesMinted = event.params.amount;
+    mint.save();
+    
+    // update the transaction
+    transaction.mintFee = mint.id;
+    transaction.save();
+  
+    // update day entities
+    let poolDayData = updatePoolDayData(event);
+    let poolHourData = updatePoolHourData(event);
+    let tradegenDayData = updateTradegenDayData(event);
+  
+    // deposit specific updating
+    tradegenDayData.dailyVolumeUSD = tradegenDayData.dailyVolumeUSD.plus(new BigDecimal(event.params.amount));
+    tradegenDayData.save();
+  
+    // deposit specific updating for pool
+    poolDayData.dailyVolumeUSD = poolDayData.dailyVolumeUSD.plus(new BigDecimal(event.params.amount));
+    poolDayData.save();
+  
+    // update hourly pool data
+    poolHourData.hourlyVolumeUSD = poolHourData.hourlyVolumeUSD.plus(new BigDecimal(event.params.amount));
+    poolHourData.save();
+
+    // create the user
+    let user = User.load(event.params.manager.toHexString()) as User;
+    if (user === null)
+    {
+        user = new User(event.params.manager.toHexString());
+        user.feesEarned = ZERO_BD;
+    }
+
+    user.feesEarned = user.feesEarned.plus(new BigDecimal(event.params.amount));
+
+    user.save();
+}

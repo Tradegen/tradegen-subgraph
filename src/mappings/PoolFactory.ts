@@ -57,19 +57,18 @@ export function handleNewPool(event: CreatedPool): void {
   poolLookup.save();
 
   // create the user
-  let user = new User(event.params.managerAddress.toHexString()) as User;
+  let user = User.load(event.params.managerAddress.toHexString()) as User;
   if (user === null)
   {
     user = new User(event.params.managerAddress.toHexString());
     user.feesEarned = ZERO_BD;
-    user.feesPaid = ZERO_BD;
   }
 
   user.save();
 
   // create the managed investment
   let managedInvestmentID = event.params.managerAddress.toHexString().concat("-").concat(event.params.poolAddress.toHexString());
-  let managedInvestment = new ManagedInvestment(managedInvestmentID) as ManagedInvestment;
+  let managedInvestment = ManagedInvestment.load(managedInvestmentID) as ManagedInvestment;
   if (managedInvestment === null)
   {
     managedInvestment = new ManagedInvestment(managedInvestmentID);
@@ -79,7 +78,7 @@ export function handleNewPool(event: CreatedPool): void {
 
   managedInvestment.save();
 
-  let poolTransaction = new PoolTransaction(event.transaction.hash.toHexString()) as PoolTransaction;
+  let poolTransaction = PoolTransaction.load(event.transaction.hash.toHexString()) as PoolTransaction;
   if (poolTransaction === null)
   {
     let poolTransaction = new PoolTransaction(event.transaction.hash.toHexString());
@@ -91,7 +90,7 @@ export function handleNewPool(event: CreatedPool): void {
 
   poolTransaction.save();
 
-  let createPoolTransaction = new CreatePool(event.transaction.hash.toHexString().concat("-create")) as CreatePool;
+  let createPoolTransaction = CreatePool.load(event.transaction.hash.toHexString().concat("-create")) as CreatePool;
   if (createPoolTransaction === null)
   {
     createPoolTransaction = new CreatePool(event.transaction.hash.toHexString().concat("-create"));

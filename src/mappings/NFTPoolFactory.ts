@@ -65,19 +65,18 @@ export function handleNewNFTPool(event: CreatedNFTPool): void {
   poolLookup.save();
 
   // create the user
-  let user = new User(event.params.managerAddress.toHexString()) as User;
+  let user = User.load(event.params.managerAddress.toHexString()) as User;
   if (user === null)
   {
     user = new User(event.params.managerAddress.toHexString());
     user.feesEarned = ZERO_BD;
-    user.feesPaid = ZERO_BD;
   }
 
   user.save();
 
   // create the managed investment
   let managedInvestmentID = event.params.managerAddress.toHexString().concat("-").concat(event.params.poolAddress.toHexString());
-  let managedInvestment = new ManagedInvestment(managedInvestmentID) as ManagedInvestment;
+  let managedInvestment = ManagedInvestment.load(managedInvestmentID) as ManagedInvestment;
   if (managedInvestment === null)
   {
     managedInvestment = new ManagedInvestment(managedInvestmentID);
@@ -87,7 +86,7 @@ export function handleNewNFTPool(event: CreatedNFTPool): void {
 
   managedInvestment.save();
 
-  let poolTransaction = new NFTPoolTransaction(event.transaction.hash.toHexString()) as NFTPoolTransaction;
+  let poolTransaction = NFTPoolTransaction.load(event.transaction.hash.toHexString()) as NFTPoolTransaction;
   if (poolTransaction === null)
   {
     let poolTransaction = new NFTPoolTransaction(event.transaction.hash.toHexString());
@@ -99,7 +98,7 @@ export function handleNewNFTPool(event: CreatedNFTPool): void {
 
   poolTransaction.save();
 
-  let createPoolTransaction = new CreateNFTPool(event.transaction.hash.toHexString().concat("-create")) as CreateNFTPool;
+  let createPoolTransaction = CreateNFTPool.load(event.transaction.hash.toHexString().concat("-create")) as CreateNFTPool;
   if (createPoolTransaction === null)
   {
     createPoolTransaction = new CreateNFTPool(event.transaction.hash.toHexString().concat("-create"));

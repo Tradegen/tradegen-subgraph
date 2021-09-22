@@ -2,21 +2,14 @@
 import {
   Address,
   BigDecimal,
-  BigInt,
-  ethereum,
-  log,
+  BigInt
 } from "@graphprotocol/graph-ts";
 import { Pool as PoolContract} from "../../generated/templates/Pool/Pool";
 import { NFTPool as NFTPoolContract} from "../../generated/templates/NFTPool/NFTPool";
 import {
   PoolPosition,
-  PoolPositionSnapshot,
   NFTPoolPosition,
-  NFTPoolPositionSnapshot,
-  AssetPosition,
-  Pool,
-  NFTPool,
-  User,
+  User
 } from "../../generated/schema";
 import { PoolFactory } from "../../generated/PoolFactory/PoolFactory";
 import { NFTPoolFactory } from "../../generated/NFTPoolFactory/NFTPoolFactory";
@@ -25,6 +18,8 @@ export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 export const POOL_FACTORY_ADDRESS = "0xC71Ff58Efa2bffaE0f120BbfD7C64893aA20bDE0";
 export const NFT_POOL_FACTORY_ADDRESS = "0x2dB13ac7A21F42bcAaFC71C1f1F8c647AEBC9750";
 export const ADDRESS_RESOLVER_ADDRESS = "0x32432FFE7E23885DF303eA41ECEe1e31aC8652a2";
+
+export const cUSD = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1";
 
 export let ZERO_BI = BigInt.fromI32(0);
 export let ONE_BI = BigInt.fromI32(1);
@@ -180,7 +175,6 @@ export function createUser(address: Address): void {
   {
     user = new User(address.toHexString());
     user.feesEarned = ZERO_BD;
-    user.feesPaid = ZERO_BD;
     user.save();
   }
 }
@@ -193,8 +187,8 @@ export function createPoolPosition(
   let poolPosition = PoolPosition.load(id);
   if (poolPosition === null)
   {
-    poolPosition.tokenBalance = ZERO_BI;
-    poolPosition.averagePrice = ZERO_BI;
+    poolPosition.tokenBalance = ZERO_BD;
+    poolPosition.averagePrice = ZERO_BD;
     poolPosition.pool = poolAddress.toHexString();
     poolPosition.user = userAddress.toHexString();
     poolPosition.save();
@@ -211,86 +205,12 @@ export function createNFTPoolPosition(
   let poolPosition = NFTPoolPosition.load(id);
   if (poolPosition === null)
   {
-    poolPosition.tokenBalance = ZERO_BI;
-    poolPosition.averagePrice = ZERO_BI;
+    poolPosition.tokenBalance = ZERO_BD;
+    poolPosition.averagePrice = ZERO_BD;
     poolPosition.NFTPool = NFTPoolAddress.toHexString();
     poolPosition.user = userAddress.toHexString();
     poolPosition.save();
   }
 
   return poolPosition as NFTPoolPosition;
-}
-
-export function createAssetPosition(
-  investmentAddress: Address,
-  tokenAddress: Address,
-  investmentType: number
-): AssetPosition {
-  let id = investmentAddress.toHexString().concat("-").concat(tokenAddress.toHexString());
-  let assetPosition = AssetPosition.load(id);
-  if (assetPosition === null)
-  {
-    assetPosition.tokenBalance = ZERO_BD;
-    assetPosition.tokenAddress = tokenAddress.toHexString();
-
-    if (investmentType == 1)
-    {
-      assetPosition.pool = investmentAddress.toHexString();
-    }
-
-    if (investmentType == 2)
-    {
-      assetPosition.NFTPool = investmentAddress.toHexString();
-    }
-
-    assetPosition.save();
-  }
-
-  return assetPosition as AssetPosition;
-}
-
-export function createPoolPositionSnapshot(
-  position: PoolPosition,
-  event: ethereum.Event
-): void {
-  let timestamp = event.block.timestamp.toI32();
-  let pool = Pool.load(position.pool);
-
-  // create new snapshot
-  let snapshot = new PoolPositionSnapshot(
-    position.id.concat(timestamp.toString())
-  );
-  snapshot.poolPosition = position.id;
-  snapshot.timestamp = timestamp;
-  snapshot.block = event.block.number.toI32();
-  snapshot.user = position.user;
-  snapshot.pool = position.pool;
-  snapshot.tokenPrice = pool.tokenPrice;
-  snapshot.totalSupply = pool.totalSupply;
-  snapshot.tokenBalance = position.tokenBalance;
-  snapshot.save();
-  position.save();
-}
-
-export function createNFTPoolPositionSnapshot(
-  position: NFTPoolPosition,
-  event: ethereum.Event
-): void {
-  let timestamp = event.block.timestamp.toI32();
-  let pool = NFTPool.load(position.NFTPool);
-
-  // create new snapshot
-  let snapshot = new NFTPoolPositionSnapshot(
-    position.id.concat(timestamp.toString())
-  );
-  snapshot.NFTPoolPosition = position.id;
-  snapshot.timestamp = timestamp;
-  snapshot.block = event.block.number.toI32();
-  snapshot.user = position.user;
-  snapshot.NFTPool = position.NFTPool;
-  snapshot.tokenPrice = pool.tokenPrice;
-  snapshot.totalSupply = pool.totalSupply;
-  snapshot.tokenBalance = position.tokenBalance;
-  snapshot.save();
-  position.save();
 }
