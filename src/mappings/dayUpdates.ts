@@ -1,152 +1,151 @@
-/* eslint-disable prefer-const */
 import { BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import {
-  Bundle,
-  Pair,
-  PairDayData,
-  Token,
-  TokenDayData,
-  UbeswapDayData,
-  UbeswapFactory,
-} from "../types/schema";
-import { PairHourData } from "./../types/schema";
-import { FACTORY_ADDRESS, ONE_BD, ONE_BI, ZERO_BD, ZERO_BI } from "./helpers";
+  Pool,
+  PoolDayData,
+  NFTPool,
+  NFTPoolDayData,
+  TradegenDayData,
+  Tradegen,
+} from "../../generated/schema";
+import { PoolHourData, NFTPoolHourData } from "../../generated/schema";
+import { ADDRESS_RESOLVER_ADDRESS, ONE_BD, ONE_BI, ZERO_BD, ZERO_BI } from "./helpers";
 
-export function updateUbeswapDayData(event: ethereum.Event): UbeswapDayData {
-  let ubeswap = UbeswapFactory.load(FACTORY_ADDRESS);
+export function updateTradegenDayData(event: ethereum.Event): TradegenDayData {
+  let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS);
   let timestamp = event.block.timestamp.toI32();
   let dayID = timestamp / 86400;
   let dayStartTimestamp = dayID * 86400;
-  let ubeswapDayData = UbeswapDayData.load(dayID.toString());
-  if (ubeswapDayData === null) {
-    ubeswapDayData = new UbeswapDayData(dayID.toString());
-    ubeswapDayData.date = dayStartTimestamp;
-    ubeswapDayData.dailyVolumeUSD = ZERO_BD;
-    ubeswapDayData.dailyVolumeCELO = ZERO_BD;
-    ubeswapDayData.totalVolumeUSD = ZERO_BD;
-    ubeswapDayData.totalVolumeCELO = ZERO_BD;
-    ubeswapDayData.dailyVolumeUntracked = ZERO_BD;
+  let tradegenDayData = TradegenDayData.load(dayID.toString());
+  if (tradegenDayData === null)
+  {
+    tradegenDayData = new TradegenDayData(dayID.toString());
+    tradegenDayData.date = dayStartTimestamp;
+    tradegenDayData.dailyVolumeUSD = ZERO_BD;
+    tradegenDayData.totalVolumeUSD = ZERO_BD;
+    tradegenDayData.totalValueLockedUSD = ZERO_BD;
+    tradegenDayData.txCount = ZERO_BI;
   }
 
-  ubeswapDayData.totalLiquidityUSD = ubeswap.totalLiquidityUSD;
-  ubeswapDayData.totalLiquidityCELO = ubeswap.totalLiquidityCELO;
-  ubeswapDayData.txCount = ubeswap.txCount;
-  ubeswapDayData.save();
+  tradegenDayData.totalVolumeUSD = tradegen.totalVolumeUSD;
+  tradegenDayData.totalValueLockedUSD = tradegen.totalValueLockedUSD;
+  tradegenDayData.txCount = tradegen.txCount;
+  tradegenDayData.save();
 
-  return ubeswapDayData as UbeswapDayData;
+  return tradegenDayData as TradegenDayData;
 }
 
-export function updatePairDayData(event: ethereum.Event): PairDayData {
+export function updatePoolDayData(event: ethereum.Event): PoolDayData {
   let timestamp = event.block.timestamp.toI32();
   let dayID = timestamp / 86400;
   let dayStartTimestamp = dayID * 86400;
-  let dayPairID = event.address
+  let dayPoolID = event.address
     .toHexString()
     .concat("-")
     .concat(BigInt.fromI32(dayID).toString());
-  let pair = Pair.load(event.address.toHexString());
-  let pairDayData = PairDayData.load(dayPairID);
-  if (pairDayData === null) {
-    pairDayData = new PairDayData(dayPairID);
-    pairDayData.date = dayStartTimestamp;
-    pairDayData.token0 = pair.token0;
-    pairDayData.token1 = pair.token1;
-    pairDayData.pairAddress = event.address;
-    pairDayData.dailyVolumeToken0 = ZERO_BD;
-    pairDayData.dailyVolumeToken1 = ZERO_BD;
-    pairDayData.dailyVolumeUSD = ZERO_BD;
-    pairDayData.dailyTxns = ZERO_BI;
+  let pool = Pool.load(event.address.toHexString());
+  let poolDayData = PoolDayData.load(dayPoolID);
+  if (poolDayData === null) {
+    poolDayData = new PoolDayData(dayPoolID);
+    poolDayData.date = dayStartTimestamp;
+    poolDayData.pool = event.address.toHexString();
+    poolDayData.dailyVolumeUSD = ZERO_BD;
+    poolDayData.dailyTxns = ZERO_BI;
   }
 
-  pairDayData.totalSupply = pair.totalSupply;
-  pairDayData.reserve0 = pair.reserve0;
-  pairDayData.reserve1 = pair.reserve1;
-  pairDayData.reserveUSD = pair.reserveUSD;
-  pairDayData.dailyTxns = pairDayData.dailyTxns.plus(ONE_BI);
-  pairDayData.save();
+  poolDayData.totalSupply = pool.totalSupply;
+  poolDayData.totalValueLockedUSD = pool.totalValueLockedUSD;
+  poolDayData.priceUSD = pool.tokenPrice;
+  poolDayData.dailyTxns = poolDayData.dailyTxns.plus(ONE_BI);
+  poolDayData.save();
 
-  return pairDayData as PairDayData;
+  return poolDayData as PoolDayData;
 }
 
-export function updatePairHourData(event: ethereum.Event): PairHourData {
+export function updatePoolHourData(event: ethereum.Event): PoolHourData {
   let timestamp = event.block.timestamp.toI32();
   let hourIndex = timestamp / 3600; // get unique hour within unix history
   let hourStartUnix = hourIndex * 3600; // want the rounded effect
-  let hourPairID = event.address
+  let hourPoolID = event.address
     .toHexString()
     .concat("-")
     .concat(BigInt.fromI32(hourIndex).toString());
-  let pair = Pair.load(event.address.toHexString());
-  let pairHourData = PairHourData.load(hourPairID);
-  if (pairHourData === null) {
-    pairHourData = new PairHourData(hourPairID);
-    pairHourData.hourStartUnix = hourStartUnix;
-    pairHourData.pair = event.address.toHexString();
-    pairHourData.hourlyVolumeToken0 = ZERO_BD;
-    pairHourData.hourlyVolumeToken1 = ZERO_BD;
-    pairHourData.hourlyVolumeUSD = ZERO_BD;
-    pairHourData.hourlyTxns = ZERO_BI;
+  let pool = Pool.load(event.address.toHexString());
+  let poolHourData = PoolHourData.load(hourPoolID);
+  if (poolHourData === null) {
+    poolHourData = new PoolHourData(hourPoolID);
+    poolHourData.hourStartUnix = hourStartUnix;
+    poolHourData.pool = event.address.toHexString();
+    poolHourData.hourlyVolumeUSD = ZERO_BD;
+    poolHourData.hourlyTxns = ZERO_BI;
 
     // random line to make a redeploy happen
-    pairHourData.totalSupply = ZERO_BD;
+    poolHourData.totalSupply = ZERO_BI;
   }
 
-  pairHourData.reserve0 = pair.reserve0;
-  pairHourData.reserve1 = pair.reserve1;
-  pairHourData.reserveUSD = pair.reserveUSD;
-  pairHourData.totalSupply = pair.totalSupply;
+  poolHourData.totalSupply = pool.totalSupply;
+  poolHourData.totalValueLockedUSD = pool.totalValueLockedUSD;
+  poolHourData.tokenPrice = pool.tokenPrice;
 
-  pairHourData.hourlyTxns = pairHourData.hourlyTxns.plus(ONE_BI);
-  pairHourData.save();
+  poolHourData.hourlyTxns = poolHourData.hourlyTxns.plus(ONE_BI);
+  poolHourData.save();
 
-  return pairHourData as PairHourData;
+  return poolHourData as PoolHourData;
 }
 
-export function updateTokenDayData(
-  token: Token,
-  event: ethereum.Event
-): TokenDayData {
-  let bundle = Bundle.load("1");
+export function updateNFTPoolDayData(event: ethereum.Event): NFTPoolDayData {
   let timestamp = event.block.timestamp.toI32();
   let dayID = timestamp / 86400;
   let dayStartTimestamp = dayID * 86400;
-  let tokenDayID = token.id
-    .toString()
+  let dayPoolID = event.address
+    .toHexString()
     .concat("-")
     .concat(BigInt.fromI32(dayID).toString());
-
-  let tokenDayData = TokenDayData.load(tokenDayID);
-  if (tokenDayData === null) {
-    tokenDayData = new TokenDayData(tokenDayID);
-    tokenDayData.date = dayStartTimestamp;
-    tokenDayData.token = token.id;
-    tokenDayData.priceUSD = token.derivedCUSD.times(ONE_BD);
-    tokenDayData.dailyVolumeToken = ZERO_BD;
-    tokenDayData.dailyVolumeCELO = ZERO_BD;
-    tokenDayData.dailyVolumeUSD = ZERO_BD;
-    tokenDayData.dailyTxns = ZERO_BI;
-    tokenDayData.totalLiquidityUSD = ZERO_BD;
+  let pool = NFTPool.load(event.address.toHexString());
+  let poolDayData = NFTPoolDayData.load(dayPoolID);
+  if (poolDayData === null) {
+    poolDayData = new NFTPoolDayData(dayPoolID);
+    poolDayData.date = dayStartTimestamp;
+    poolDayData.NFTPool = event.address.toHexString();
+    poolDayData.dailyVolumeUSD = ZERO_BD;
+    poolDayData.dailyTxns = ZERO_BI;
   }
-  tokenDayData.priceUSD = token.derivedCUSD.times(ONE_BD);
-  tokenDayData.totalLiquidityToken = token.totalLiquidity;
-  tokenDayData.totalLiquidityUSD = token.totalLiquidity.times(
-    token.derivedCUSD as BigDecimal
-  );
-  if (bundle.celoPrice.notEqual(ZERO_BD)) {
-    tokenDayData.totalLiquidityCELO = tokenDayData.totalLiquidityUSD.div(
-      bundle.celoPrice
-    );
-  } else {
-    tokenDayData.totalLiquidityCELO = ZERO_BD;
+
+  poolDayData.totalSupply = pool.totalSupply;
+  poolDayData.totalValueLockedUSD = pool.totalValueLockedUSD;
+  poolDayData.priceUSD = pool.tokenPrice;
+  poolDayData.dailyTxns = poolDayData.dailyTxns.plus(ONE_BI);
+  poolDayData.save();
+
+  return poolDayData as NFTPoolDayData;
+}
+
+export function updateNFTPoolHourData(event: ethereum.Event): NFTPoolHourData {
+  let timestamp = event.block.timestamp.toI32();
+  let hourIndex = timestamp / 3600; // get unique hour within unix history
+  let hourStartUnix = hourIndex * 3600; // want the rounded effect
+  let hourPoolID = event.address
+    .toHexString()
+    .concat("-")
+    .concat(BigInt.fromI32(hourIndex).toString());
+  let pool = NFTPool.load(event.address.toHexString());
+  let poolHourData = NFTPoolHourData.load(hourPoolID);
+  if (poolHourData === null) {
+    poolHourData = new NFTPoolHourData(hourPoolID);
+    poolHourData.hourStartUnix = hourStartUnix;
+    poolHourData.NFTPool = event.address.toHexString();
+    poolHourData.hourlyVolumeUSD = ZERO_BD;
+    poolHourData.hourlyTxns = ZERO_BI;
+
+    // random line to make a redeploy happen
+    poolHourData.totalSupply = ZERO_BI;
   }
-  tokenDayData.dailyTxns = tokenDayData.dailyTxns.plus(ONE_BI);
-  tokenDayData.save();
 
-  /**
-   * @todo test if this speeds up sync
-   */
-  // updateStoredTokens(tokenDayData as TokenDayData, dayID)
-  // updateStoredPairs(tokenDayData as TokenDayData, dayPairID)
+  poolHourData.totalSupply = pool.totalSupply;
+  poolHourData.totalValueLockedUSD = pool.totalValueLockedUSD;
+  poolHourData.tokenPrice = pool.tokenPrice;
 
-  return tokenDayData as TokenDayData;
+  poolHourData.hourlyTxns = poolHourData.hourlyTxns.plus(ONE_BI);
+  poolHourData.save();
+
+  return poolHourData as NFTPoolHourData;
 }

@@ -2800,8 +2800,9 @@ export class PoolHourData extends Entity {
 
     this.set("hourStartUnix", Value.fromI32(0));
     this.set("pool", Value.fromString(""));
-    this.set("totalSupply", Value.fromBigDecimal(BigDecimal.zero()));
-    this.set("tokenPrice", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set("totalSupply", Value.fromBigInt(BigInt.zero()));
+    this.set("tokenPrice", Value.fromBigInt(BigInt.zero()));
+    this.set("totalValueLockedUSD", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("hourlyVolumeUSD", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("hourlyTxns", Value.fromBigInt(BigInt.zero()));
   }
@@ -2850,22 +2851,31 @@ export class PoolHourData extends Entity {
     this.set("pool", Value.fromString(value));
   }
 
-  get totalSupply(): BigDecimal {
+  get totalSupply(): BigInt {
     let value = this.get("totalSupply");
-    return value!.toBigDecimal();
+    return value!.toBigInt();
   }
 
-  set totalSupply(value: BigDecimal) {
-    this.set("totalSupply", Value.fromBigDecimal(value));
+  set totalSupply(value: BigInt) {
+    this.set("totalSupply", Value.fromBigInt(value));
   }
 
-  get tokenPrice(): BigDecimal {
+  get tokenPrice(): BigInt {
     let value = this.get("tokenPrice");
+    return value!.toBigInt();
+  }
+
+  set tokenPrice(value: BigInt) {
+    this.set("tokenPrice", Value.fromBigInt(value));
+  }
+
+  get totalValueLockedUSD(): BigDecimal {
+    let value = this.get("totalValueLockedUSD");
     return value!.toBigDecimal();
   }
 
-  set tokenPrice(value: BigDecimal) {
-    this.set("tokenPrice", Value.fromBigDecimal(value));
+  set totalValueLockedUSD(value: BigDecimal) {
+    this.set("totalValueLockedUSD", Value.fromBigDecimal(value));
   }
 
   get hourlyVolumeUSD(): BigDecimal {
@@ -2894,8 +2904,9 @@ export class NFTPoolHourData extends Entity {
 
     this.set("hourStartUnix", Value.fromI32(0));
     this.set("NFTPool", Value.fromString(""));
-    this.set("totalSupply", Value.fromBigDecimal(BigDecimal.zero()));
-    this.set("tokenPrice", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set("totalSupply", Value.fromBigInt(BigInt.zero()));
+    this.set("tokenPrice", Value.fromBigInt(BigInt.zero()));
+    this.set("totalValueLockedUSD", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("hourlyVolumeUSD", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("hourlyTxns", Value.fromBigInt(BigInt.zero()));
   }
@@ -2944,22 +2955,31 @@ export class NFTPoolHourData extends Entity {
     this.set("NFTPool", Value.fromString(value));
   }
 
-  get totalSupply(): BigDecimal {
+  get totalSupply(): BigInt {
     let value = this.get("totalSupply");
-    return value!.toBigDecimal();
+    return value!.toBigInt();
   }
 
-  set totalSupply(value: BigDecimal) {
-    this.set("totalSupply", Value.fromBigDecimal(value));
+  set totalSupply(value: BigInt) {
+    this.set("totalSupply", Value.fromBigInt(value));
   }
 
-  get tokenPrice(): BigDecimal {
+  get tokenPrice(): BigInt {
     let value = this.get("tokenPrice");
+    return value!.toBigInt();
+  }
+
+  set tokenPrice(value: BigInt) {
+    this.set("tokenPrice", Value.fromBigInt(value));
+  }
+
+  get totalValueLockedUSD(): BigDecimal {
+    let value = this.get("totalValueLockedUSD");
     return value!.toBigDecimal();
   }
 
-  set tokenPrice(value: BigDecimal) {
-    this.set("tokenPrice", Value.fromBigDecimal(value));
+  set totalValueLockedUSD(value: BigDecimal) {
+    this.set("totalValueLockedUSD", Value.fromBigDecimal(value));
   }
 
   get hourlyVolumeUSD(): BigDecimal {
@@ -2991,8 +3011,8 @@ export class PoolDayData extends Entity {
     this.set("dailyVolumeUSD", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("dailyTxns", Value.fromBigInt(BigInt.zero()));
     this.set("totalValueLockedUSD", Value.fromBigDecimal(BigDecimal.zero()));
-    this.set("totalSupply", Value.fromBigDecimal(BigDecimal.zero()));
-    this.set("priceUSD", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set("totalSupply", Value.fromBigInt(BigInt.zero()));
+    this.set("priceUSD", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
@@ -3066,22 +3086,22 @@ export class PoolDayData extends Entity {
     this.set("totalValueLockedUSD", Value.fromBigDecimal(value));
   }
 
-  get totalSupply(): BigDecimal {
+  get totalSupply(): BigInt {
     let value = this.get("totalSupply");
-    return value!.toBigDecimal();
+    return value!.toBigInt();
   }
 
-  set totalSupply(value: BigDecimal) {
-    this.set("totalSupply", Value.fromBigDecimal(value));
+  set totalSupply(value: BigInt) {
+    this.set("totalSupply", Value.fromBigInt(value));
   }
 
-  get priceUSD(): BigDecimal {
+  get priceUSD(): BigInt {
     let value = this.get("priceUSD");
-    return value!.toBigDecimal();
+    return value!.toBigInt();
   }
 
-  set priceUSD(value: BigDecimal) {
-    this.set("priceUSD", Value.fromBigDecimal(value));
+  set priceUSD(value: BigInt) {
+    this.set("priceUSD", Value.fromBigInt(value));
   }
 }
 
@@ -3095,8 +3115,8 @@ export class NFTPoolDayData extends Entity {
     this.set("dailyVolumeUSD", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("dailyTxns", Value.fromBigInt(BigInt.zero()));
     this.set("totalValueLockedUSD", Value.fromBigDecimal(BigDecimal.zero()));
-    this.set("totalSupply", Value.fromBigDecimal(BigDecimal.zero()));
-    this.set("priceUSD", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set("totalSupply", Value.fromBigInt(BigInt.zero()));
+    this.set("priceUSD", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
@@ -3170,21 +3190,21 @@ export class NFTPoolDayData extends Entity {
     this.set("totalValueLockedUSD", Value.fromBigDecimal(value));
   }
 
-  get totalSupply(): BigDecimal {
+  get totalSupply(): BigInt {
     let value = this.get("totalSupply");
-    return value!.toBigDecimal();
+    return value!.toBigInt();
   }
 
-  set totalSupply(value: BigDecimal) {
-    this.set("totalSupply", Value.fromBigDecimal(value));
+  set totalSupply(value: BigInt) {
+    this.set("totalSupply", Value.fromBigInt(value));
   }
 
-  get priceUSD(): BigDecimal {
+  get priceUSD(): BigInt {
     let value = this.get("priceUSD");
-    return value!.toBigDecimal();
+    return value!.toBigInt();
   }
 
-  set priceUSD(value: BigDecimal) {
-    this.set("priceUSD", Value.fromBigDecimal(value));
+  set priceUSD(value: BigInt) {
+    this.set("priceUSD", Value.fromBigInt(value));
   }
 }

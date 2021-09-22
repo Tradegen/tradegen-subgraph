@@ -358,8 +358,9 @@ type PoolHourData @entity {
   hourStartUnix: Int! # unix timestamp for start of hour
   pool: Pool!
 
-  totalSupply: BigDecimal!
-  tokenPrice: BigDecimal!
+  totalSupply: BigInt!
+  tokenPrice: BigInt!
+  totalValueLockedUSD: BigDecimal!
 
   # volume stats
   hourlyVolumeUSD: BigDecimal!
@@ -371,8 +372,9 @@ type NFTPoolHourData @entity {
   hourStartUnix: Int! # unix timestamp for start of hour
   NFTPool: NFTPool!
 
-  totalSupply: BigDecimal!
-  tokenPrice: BigDecimal!
+  totalSupply: BigInt!
+  tokenPrice: BigInt!
+  totalValueLockedUSD: BigDecimal!
 
   # volume stats
   hourlyVolumeUSD: BigDecimal!
@@ -390,10 +392,10 @@ type PoolDayData @entity {
 
   # TVL stats
   totalValueLockedUSD: BigDecimal!
-  totalSupply: BigDecimal!
+  totalSupply: BigInt!
 
   # price stats
-  priceUSD: BigDecimal!
+  priceUSD: BigInt!
 }
 
 type NFTPoolDayData @entity {
@@ -407,8 +409,8 @@ type NFTPoolDayData @entity {
 
   # TVL stats
   totalValueLockedUSD: BigDecimal!
-  totalSupply: BigDecimal!
+  totalSupply: BigInt!
 
   # price stats
-  priceUSD: BigDecimal!
+  priceUSD: BigInt!
 }
