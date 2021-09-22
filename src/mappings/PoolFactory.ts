@@ -4,7 +4,9 @@ import {
   Tradegen,
   PoolLookup,
   User,
-  ManagedInvestment
+  ManagedInvestment,
+  PoolTransaction,
+  CreatePool
 } from "../../generated/schema";
 import { Pool as PoolTemplate } from "../../generated/templates";
 import {
@@ -76,4 +78,29 @@ export function handleNewPool(event: CreatedPool): void {
   }
 
   managedInvestment.save();
+
+  let poolTransaction = new PoolTransaction(event.transaction.hash.toHexString()) as PoolTransaction;
+  if (poolTransaction === null)
+  {
+    let poolTransaction = new PoolTransaction(event.transaction.hash.toHexString());
+    poolTransaction.blockNumber = event.block.number;
+    poolTransaction.timestamp = event.block.timestamp;
+    poolTransaction.pool = event.params.poolAddress.toHexString();
+    poolTransaction.create = event.transaction.hash.toHexString().concat("-create");
+  }
+
+  poolTransaction.save();
+
+  let createPoolTransaction = new CreatePool(event.transaction.hash.toHexString().concat("-create")) as CreatePool;
+  if (createPoolTransaction === null)
+  {
+    createPoolTransaction = new CreatePool(event.transaction.hash.toHexString().concat("-create"));
+    createPoolTransaction.poolTransaction = event.transaction.hash.toHexString();
+    createPoolTransaction.timestamp = event.block.timestamp;
+    createPoolTransaction.manager = event.params.managerAddress.toHexString();
+    createPoolTransaction.poolAddress = event.params.poolAddress.toHexString();
+    createPoolTransaction.poolIndex = event.params.poolIndex;
+  }
+
+  createPoolTransaction.save();
 }

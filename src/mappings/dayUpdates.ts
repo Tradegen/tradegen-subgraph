@@ -1,4 +1,4 @@
-import { BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { BigInt, ethereum } from "@graphprotocol/graph-ts";
 import {
   Pool,
   PoolDayData,
@@ -8,7 +8,7 @@ import {
   Tradegen,
 } from "../../generated/schema";
 import { PoolHourData, NFTPoolHourData } from "../../generated/schema";
-import { ADDRESS_RESOLVER_ADDRESS, ONE_BD, ONE_BI, ZERO_BD, ZERO_BI } from "./helpers";
+import { ADDRESS_RESOLVER_ADDRESS, ONE_BI, ZERO_BD, ZERO_BI } from "./helpers";
 
 export function updateTradegenDayData(event: ethereum.Event): TradegenDayData {
   let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS);

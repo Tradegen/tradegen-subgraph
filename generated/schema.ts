@@ -1761,8 +1761,8 @@ export class PoolTransaction extends Entity {
     this.set("pool", Value.fromString(value));
   }
 
-  get creates(): string | null {
-    let value = this.get("creates");
+  get create(): string | null {
+    let value = this.get("create");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -1770,16 +1770,16 @@ export class PoolTransaction extends Entity {
     }
   }
 
-  set creates(value: string | null) {
+  set create(value: string | null) {
     if (!value) {
-      this.unset("creates");
+      this.unset("create");
     } else {
-      this.set("creates", Value.fromString(<string>value));
+      this.set("create", Value.fromString(<string>value));
     }
   }
 
-  get invests(): string | null {
-    let value = this.get("invests");
+  get deposit(): string | null {
+    let value = this.get("deposit");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -1787,16 +1787,16 @@ export class PoolTransaction extends Entity {
     }
   }
 
-  set invests(value: string | null) {
+  set deposit(value: string | null) {
     if (!value) {
-      this.unset("invests");
+      this.unset("deposit");
     } else {
-      this.set("invests", Value.fromString(<string>value));
+      this.set("deposit", Value.fromString(<string>value));
     }
   }
 
-  get withdraws(): string | null {
-    let value = this.get("withdraws");
+  get withdraw(): string | null {
+    let value = this.get("withdraw");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -1804,16 +1804,16 @@ export class PoolTransaction extends Entity {
     }
   }
 
-  set withdraws(value: string | null) {
+  set withdraw(value: string | null) {
     if (!value) {
-      this.unset("withdraws");
+      this.unset("withdraw");
     } else {
-      this.set("withdraws", Value.fromString(<string>value));
+      this.set("withdraw", Value.fromString(<string>value));
     }
   }
 
-  get mintFees(): string | null {
-    let value = this.get("mintFees");
+  get mintFee(): string | null {
+    let value = this.get("mintFee");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -1821,11 +1821,11 @@ export class PoolTransaction extends Entity {
     }
   }
 
-  set mintFees(value: string | null) {
+  set mintFee(value: string | null) {
     if (!value) {
-      this.unset("mintFees");
+      this.unset("mintFee");
     } else {
-      this.set("mintFees", Value.fromString(<string>value));
+      this.set("mintFee", Value.fromString(<string>value));
     }
   }
 }
@@ -1895,8 +1895,8 @@ export class NFTPoolTransaction extends Entity {
     this.set("NFTPool", Value.fromString(value));
   }
 
-  get creates(): string | null {
-    let value = this.get("creates");
+  get create(): string | null {
+    let value = this.get("create");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -1904,16 +1904,16 @@ export class NFTPoolTransaction extends Entity {
     }
   }
 
-  set creates(value: string | null) {
+  set create(value: string | null) {
     if (!value) {
-      this.unset("creates");
+      this.unset("create");
     } else {
-      this.set("creates", Value.fromString(<string>value));
+      this.set("create", Value.fromString(<string>value));
     }
   }
 
-  get invests(): string | null {
-    let value = this.get("invests");
+  get deposit(): string | null {
+    let value = this.get("deposit");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -1921,16 +1921,16 @@ export class NFTPoolTransaction extends Entity {
     }
   }
 
-  set invests(value: string | null) {
+  set deposit(value: string | null) {
     if (!value) {
-      this.unset("invests");
+      this.unset("deposit");
     } else {
-      this.set("invests", Value.fromString(<string>value));
+      this.set("deposit", Value.fromString(<string>value));
     }
   }
 
-  get withdraws(): string | null {
-    let value = this.get("withdraws");
+  get withdraw(): string | null {
+    let value = this.get("withdraw");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -1938,11 +1938,11 @@ export class NFTPoolTransaction extends Entity {
     }
   }
 
-  set withdraws(value: string | null) {
+  set withdraw(value: string | null) {
     if (!value) {
-      this.unset("withdraws");
+      this.unset("withdraw");
     } else {
-      this.set("withdraws", Value.fromString(<string>value));
+      this.set("withdraw", Value.fromString(<string>value));
     }
   }
 }
@@ -2135,7 +2135,7 @@ export class CreateNFTPool extends Entity {
   }
 }
 
-export class InvestPool extends Entity {
+export class DepositPool extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -2149,19 +2149,19 @@ export class InvestPool extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save InvestPool entity without an ID");
+    assert(id != null, "Cannot save DepositPool entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        "Cannot save InvestPool entity with non-string ID. " +
+        "Cannot save DepositPool entity with non-string ID. " +
           'Considering using .toHex() to convert the "id" to a string.'
       );
-      store.set("InvestPool", id.toString(), this);
+      store.set("DepositPool", id.toString(), this);
     }
   }
 
-  static load(id: string): InvestPool | null {
-    return changetype<InvestPool | null>(store.get("InvestPool", id));
+  static load(id: string): DepositPool | null {
+    return changetype<DepositPool | null>(store.get("DepositPool", id));
   }
 
   get id(): string {
@@ -2219,7 +2219,7 @@ export class InvestPool extends Entity {
   }
 }
 
-export class InvestNFTPool extends Entity {
+export class DepositNFTPool extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -2234,19 +2234,19 @@ export class InvestNFTPool extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save InvestNFTPool entity without an ID");
+    assert(id != null, "Cannot save DepositNFTPool entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        "Cannot save InvestNFTPool entity with non-string ID. " +
+        "Cannot save DepositNFTPool entity with non-string ID. " +
           'Considering using .toHex() to convert the "id" to a string.'
       );
-      store.set("InvestNFTPool", id.toString(), this);
+      store.set("DepositNFTPool", id.toString(), this);
     }
   }
 
-  static load(id: string): InvestNFTPool | null {
-    return changetype<InvestNFTPool | null>(store.get("InvestNFTPool", id));
+  static load(id: string): DepositNFTPool | null {
+    return changetype<DepositNFTPool | null>(store.get("DepositNFTPool", id));
   }
 
   get id(): string {

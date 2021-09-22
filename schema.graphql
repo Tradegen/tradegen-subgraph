@@ -223,30 +223,30 @@ type Unstake @entity {
 }
 
 type PoolTransaction @entity {
-  # transaction hash + "-" + index in transactions array
+  # transaction hash
   id: ID!
   blockNumber: BigInt!
   timestamp: BigInt!
   pool: Pool!
-  creates: CreatePool
-  invests: InvestPool
-  withdraws: WithdrawPool
-  mintFees: MintFeePool
+  create: CreatePool
+  deposit: DepositPool
+  withdraw: WithdrawPool
+  mintFee: MintFeePool
 }
 
 type NFTPoolTransaction @entity {
-  # transaction hash + "-" + index in transactions array
+  # transaction hash
   id: ID!
   blockNumber: BigInt!
   timestamp: BigInt!
   NFTPool: NFTPool!
-  creates: CreatePool
-  invests: InvestPool
-  withdraws: WithdrawPool
+  create: CreateNFTPool
+  deposit: DepositNFTPool
+  withdraw: WithdrawNFTPool
 }
 
 type CreatePool @entity {
-  # PoolTransaction ID + "-" + index in creates PoolTransaction array
+  # PoolTransaction ID + "-create"
   id: ID!
   poolTransaction: PoolTransaction!
   timestamp: BigInt! # need this to pull recent txns for specific pool or NFT pool
@@ -257,7 +257,7 @@ type CreatePool @entity {
 }
 
 type CreateNFTPool @entity {
-  # NFTPoolTransaction ID + "-" + index in creates NFTPoolTransaction array
+  # NFTPoolTransaction ID + "-create"
   id: ID!
   NFTPoolTransaction: NFTPoolTransaction!
   timestamp: BigInt! # need this to pull recent txns for specific pool or NFT pool
@@ -270,8 +270,8 @@ type CreateNFTPool @entity {
   maxSupply: BigInt!
 }
 
-type InvestPool @entity {
-  # PoolTransaction ID + "-" + index in invests PoolTransaction array
+type DepositPool @entity {
+  # PoolTransaction ID + "-deposit"
   id: ID!
   poolTransaction: PoolTransaction!
   timestamp: BigInt! # need this to pull recent txns for specific pool or NFT pool
@@ -281,8 +281,8 @@ type InvestPool @entity {
   amount: BigInt! # USD amount invested
 }
 
-type InvestNFTPool @entity {
-  # NFTPoolTransaction ID + "-" + index in invests NFTPoolTransaction array
+type DepositNFTPool @entity {
+  # NFTPoolTransaction ID + "-deposit"
   id: ID!
   NFTPoolTransaction: NFTPoolTransaction!
   timestamp: BigInt! # need this to pull recent txns for specific pool or NFT pool
@@ -294,7 +294,7 @@ type InvestNFTPool @entity {
 }
 
 type WithdrawPool @entity {
-  # PoolTransaction ID + "-" + index in withdraws PoolTransaction array
+  # PoolTransaction ID + "-withdraw"
   id: ID!
   poolTransaction: PoolTransaction!
   timestamp: BigInt! # need this to pull recent txns for specific pool or NFT pool
@@ -306,7 +306,7 @@ type WithdrawPool @entity {
 }
 
 type WithdrawNFTPool @entity {
-  # NFTPoolTransaction ID + "-" + index in withdraws NFTPoolTransaction array
+  # NFTPoolTransaction ID + "-withdraw"
   id: ID!
   NFTPoolTransaction: NFTPoolTransaction!
   timestamp: BigInt! # need this to pull recent txns for specific pool or NFT pool
@@ -318,7 +318,7 @@ type WithdrawNFTPool @entity {
 }
 
 type MintFeePool @entity {
-  # PoolTransaction ID + "-" + index in mintFees PoolTransaction array
+  # PoolTransaction ID + "-mintFee"
   id: ID!
   poolTransaction: PoolTransaction!
   timestamp: BigInt! # need this to pull recent txns for specific pool or NFT pool

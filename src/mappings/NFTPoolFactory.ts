@@ -4,7 +4,9 @@ import {
   Tradegen,
   NFTPoolLookup,
   User,
-  ManagedInvestment
+  ManagedInvestment,
+  NFTPoolTransaction,
+  CreateNFTPool
 } from "../../generated/schema";
 import { NFTPool as NFTPoolTemplate } from "../../generated/templates";
 import {
@@ -84,4 +86,29 @@ export function handleNewNFTPool(event: CreatedNFTPool): void {
   }
 
   managedInvestment.save();
+
+  let poolTransaction = new NFTPoolTransaction(event.transaction.hash.toHexString()) as NFTPoolTransaction;
+  if (poolTransaction === null)
+  {
+    let poolTransaction = new NFTPoolTransaction(event.transaction.hash.toHexString());
+    poolTransaction.blockNumber = event.block.number;
+    poolTransaction.timestamp = event.block.timestamp;
+    poolTransaction.NFTPool = event.params.poolAddress.toHexString();
+    poolTransaction.create = event.transaction.hash.toHexString().concat("-create");
+  }
+
+  poolTransaction.save();
+
+  let createPoolTransaction = new CreateNFTPool(event.transaction.hash.toHexString().concat("-create")) as CreateNFTPool;
+  if (createPoolTransaction === null)
+  {
+    createPoolTransaction = new CreateNFTPool(event.transaction.hash.toHexString().concat("-create"));
+    createPoolTransaction.NFTPoolTransaction = event.transaction.hash.toHexString();
+    createPoolTransaction.timestamp = event.block.timestamp;
+    createPoolTransaction.manager = event.params.managerAddress.toHexString();
+    createPoolTransaction.NFTPoolAddress = event.params.poolAddress.toHexString();
+    createPoolTransaction.NFTPoolIndex = event.params.poolIndex;
+  }
+
+  createPoolTransaction.save();
 }
