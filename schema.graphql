@@ -39,9 +39,9 @@ type Pool @entity {
   totalValueLockedUSD: BigDecimal!
 
   # derived fields
-  poolDayData: [InvestmentDayData!]! @derivedFrom(field: "investmentAddress")
-  positions: [AssetPosition!]! @derivedFrom(field: "investmentAddress")
-  trades: [Trade!]! @derivedFrom(field: "investmentAddress")
+  poolDayData: [PoolDayData!]! @derivedFrom(field: "pool")
+  positions: [AssetPosition!]! @derivedFrom(field: "pool")
+  trades: [Trade!]! @derivedFrom(field: "pool")
 }
 
 type NFTPool @entity {
@@ -74,9 +74,9 @@ type NFTPool @entity {
   totalValueLockedUSD: BigDecimal!
 
   # derived fields
-  poolDayData: [InvestmentDayData!]! @derivedFrom(field: "investmentAddress")
-  positions: [AssetPosition!]! @derivedFrom(field: "investmentAddress")
-  trades: [Trade!]! @derivedFrom(field: "investmentAddress")
+  poolDayData: [NFTPoolDayData!]! @derivedFrom(field: "NFTPool")
+  positions: [AssetPosition!]! @derivedFrom(field: "NFTPool")
+  trades: [Trade!]! @derivedFrom(field: "NFTPool")
 }
 
 type PoolLookup @entity {
@@ -102,24 +102,24 @@ type PoolPosition @entity {
   id: ID!
   user: User!
   pool: Pool!
-  tokenBalance: BigDecimal!
-  averagePrice: BigDecimal!
+  tokenBalance: BigInt!
+  averagePrice: BigInt!
 }
 
 type NFTPoolPosition @entity {
   id: ID!
   user: User!
   NFTPool: NFTPool!
-  tokenBalance: BigDecimal!
-  averagePrice: BigDecimal!
+  tokenBalance: BigInt!
+  averagePrice: BigInt!
 }
 
 type AssetPosition @entity {
   id: ID!
-  investmentAddress: String!
+  pool: Pool
+  NFTPool: NFTPool
   tokenAddress: String!
   tokenBalance: BigDecimal!
-  averagePrice: BigDecimal!
 }
 
 # saved over time for return calculations, gets created and never updated
@@ -130,9 +130,9 @@ type PoolPositionSnapshot @entity {
   block: Int! # saved for fast historical lookups
   user: User! # reference to user
   pool: Pool! # reference to pool
-  tokenPrice: BigDecimal! # snapshot of token price
-  totalSupply: BigDecimal! # snapshot of total supply
-  tokenBalance: BigDecimal! # snapshot of users token balance
+  tokenPrice: BigInt! # snapshot of token price
+  totalSupply: BigInt! # snapshot of total supply
+  tokenBalance: BigInt! # snapshot of users token balance
 }
 
 # saved over time for return calculations, gets created and never updated
@@ -143,21 +143,22 @@ type NFTPoolPositionSnapshot @entity {
   block: Int! # saved for fast historical lookups
   user: User! # reference to user
   NFTPool: NFTPool! # reference to NFT pool
-  tokenPrice: BigDecimal! # snapshot of token price
-  totalSupply: BigDecimal! # snapshot of total supply
-  tokenBalance: BigDecimal! # snapshot of users token balance
+  tokenPrice: BigInt! # snapshot of token price
+  totalSupply: BigInt! # snapshot of total supply
+  tokenBalance: BigInt! # snapshot of users token balance
 }
 
 type Trade @entity {
   # transaction hash + "-" + index in trades array
   id: ID!
-  investmentAddress: String!
+  pool: Pool
+  NFTPool: NFTPool
 
-  swaps: [Swap]!
-  addLiquiditys: [AddLiquidity]!
-  removeLiquiditys: [RemoveLiquidity]!
-  stakes: [Stake]!
-  unstakes: [Unstake]!
+  swap: [Swap!]
+  addLiquiditys: [AddLiquidity!]
+  removeLiquiditys: [RemoveLiquidity!]
+  stakes: [Stake!]
+  unstakes: [Unstake!]
 }
 
 type Swap @entity {
@@ -223,8 +224,8 @@ type Transaction @entity {
   id: ID! # txn hash
   blockNumber: BigInt!
   timestamp: BigInt!
-  poolTransactions: [PoolTransaction]!
-  NFTPoolTransactions: [NFTPoolTransaction]!
+  poolTransactions: [PoolTransaction!]
+  NFTPoolTransactions: [NFTPoolTransaction!]
 }
 
 type PoolTransaction @entity {
@@ -232,10 +233,10 @@ type PoolTransaction @entity {
   id: ID!
   transaction: Transaction!
   pool: Pool!
-  creates: [CreatePool]!
-  invests: [InvestPool]!
-  withdraws: [WithdrawPool]!
-  mintFees: [MintFeePool]!
+  creates: [CreatePool!]
+  invests: [InvestPool!]
+  withdraws: [WithdrawPool!]
+  mintFees: [MintFeePool!]
 }
 
 type NFTPoolTransaction @entity {
@@ -243,9 +244,9 @@ type NFTPoolTransaction @entity {
   id: ID!
   transaction: Transaction!
   pool: Pool!
-  creates: [CreatePool]!
-  invests: [InvestPool]!
-  withdraws: [WithdrawPool]!
+  creates: [CreatePool!]
+  invests: [InvestPool!]
+  withdraws: [WithdrawPool!]
 }
 
 type CreatePool @entity {
@@ -340,7 +341,7 @@ type Bundle @entity {
 type ManagedInvestment @entity {
   id: ID!
   investmentAddress: String! # address of pool or NFT pool
-  manager: String! # address of investment's manager
+  manager: User! # address of investment's manager
 }
 
 # Data accumulated and condensed into day stats for all of Tradegen

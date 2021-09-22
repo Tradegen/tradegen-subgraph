@@ -1,4 +1,4 @@
-specVersion: 0.0.2
+specVersion: 0.22.0
 description: Tradegen is a decentralized asset management and algo trading platform on Celo.
 repository: https://github.com/Tradegen/tradegen-subgraph
 schema:
@@ -13,7 +13,7 @@ dataSources:
       startBlock: 6944644
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/PoolFactory.ts
       entities:
@@ -22,7 +22,7 @@ dataSources:
         - name: PoolFactory
           file: ./abis/PoolFactory.json
       eventHandlers:
-        - event: CreatedPool(indexed address,indexed address,address,uint256, uint256)
+        - event: CreatedPool(indexed address,indexed address,uint256,uint256)
           handler: handleNewPool
   - kind: ethereum/contract
     name: NFTPoolFactory
@@ -33,7 +33,7 @@ dataSources:
       startBlock: 6993722
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/NFTPoolFactory.ts
       entities:
@@ -42,7 +42,7 @@ dataSources:
         - name: NFTPoolFactory
           file: ./abis/NFTPoolFactory.json
       eventHandlers:
-        - event: CreatedNFTPool(indexed address,indexed address,address,uint256,uint256)
+        - event: CreatedNFTPool(indexed address,indexed address,uint256,uint256)
           handler: handleNewNFTPool
 templates:
   - kind: ethereum/contract
@@ -52,7 +52,7 @@ templates:
       abi: Pool
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/Pool.ts
       entities:
@@ -77,7 +77,7 @@ templates:
       abi: NFTPool
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/NFTPool.ts
       entities:
