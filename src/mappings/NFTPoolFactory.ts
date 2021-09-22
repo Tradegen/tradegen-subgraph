@@ -3,6 +3,8 @@ import {
   NFTPool,
   Tradegen,
   NFTPoolLookup,
+  User,
+  ManagedInvestment
 } from "../../generated/schema";
 import { NFTPool as NFTPoolTemplate } from "../../generated/templates";
 import {
@@ -47,7 +49,7 @@ export function handleNewNFTPool(event: CreatedNFTPool): void {
   pool.availableC3 = availableTokens[2];
   pool.availableC4 = availableTokens[3];
   pool.tradeVolumeUSD = ZERO_BD;
-  pool.feesCollected = ZERO_BI;
+  pool.feesCollected = ZERO_BD;
   pool.totalValueLockedUSD = ZERO_BD;
 
   let poolLookup = new NFTPoolLookup(event.params.poolAddress.toHexString());
@@ -59,4 +61,27 @@ export function handleNewNFTPool(event: CreatedNFTPool): void {
   // save updated values
   pool.save();
   poolLookup.save();
+
+  // create the user
+  let user = new User(event.params.managerAddress.toHexString()) as User;
+  if (user === null)
+  {
+    user = new User(event.params.managerAddress.toHexString());
+    user.feesEarned = ZERO_BD;
+    user.feesPaid = ZERO_BD;
+  }
+
+  user.save();
+
+  // create the managed investment
+  let managedInvestmentID = event.params.managerAddress.toHexString().concat("-").concat(event.params.poolAddress.toHexString());
+  let managedInvestment = new ManagedInvestment(managedInvestmentID) as ManagedInvestment;
+  if (managedInvestment === null)
+  {
+    managedInvestment = new ManagedInvestment(managedInvestmentID);
+    managedInvestment.pool = event.params.poolAddress.toHexString();
+    managedInvestment.manager = event.params.managerAddress.toHexString();
+  }
+
+  managedInvestment.save();
 }

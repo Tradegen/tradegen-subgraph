@@ -107,7 +107,7 @@ export class Pool extends Entity {
     this.set("tokenPrice", Value.fromBigInt(BigInt.zero()));
     this.set("totalSupply", Value.fromBigInt(BigInt.zero()));
     this.set("tradeVolumeUSD", Value.fromBigDecimal(BigDecimal.zero()));
-    this.set("feesCollected", Value.fromBigInt(BigInt.zero()));
+    this.set("feesCollected", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("totalValueLockedUSD", Value.fromBigDecimal(BigDecimal.zero()));
   }
 
@@ -191,13 +191,13 @@ export class Pool extends Entity {
     this.set("tradeVolumeUSD", Value.fromBigDecimal(value));
   }
 
-  get feesCollected(): BigInt {
+  get feesCollected(): BigDecimal {
     let value = this.get("feesCollected");
-    return value!.toBigInt();
+    return value!.toBigDecimal();
   }
 
-  set feesCollected(value: BigInt) {
-    this.set("feesCollected", Value.fromBigInt(value));
+  set feesCollected(value: BigDecimal) {
+    this.set("feesCollected", Value.fromBigDecimal(value));
   }
 
   get totalValueLockedUSD(): BigDecimal {
@@ -262,7 +262,7 @@ export class NFTPool extends Entity {
     this.set("availableC3", Value.fromBigInt(BigInt.zero()));
     this.set("availableC4", Value.fromBigInt(BigInt.zero()));
     this.set("tradeVolumeUSD", Value.fromBigDecimal(BigDecimal.zero()));
-    this.set("feesCollected", Value.fromBigInt(BigInt.zero()));
+    this.set("feesCollected", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("totalValueLockedUSD", Value.fromBigDecimal(BigDecimal.zero()));
   }
 
@@ -391,13 +391,13 @@ export class NFTPool extends Entity {
     this.set("tradeVolumeUSD", Value.fromBigDecimal(value));
   }
 
-  get feesCollected(): BigInt {
+  get feesCollected(): BigDecimal {
     let value = this.get("feesCollected");
-    return value!.toBigInt();
+    return value!.toBigDecimal();
   }
 
-  set feesCollected(value: BigInt) {
-    this.set("feesCollected", Value.fromBigInt(value));
+  set feesCollected(value: BigDecimal) {
+    this.set("feesCollected", Value.fromBigDecimal(value));
   }
 
   get totalValueLockedUSD(): BigDecimal {
@@ -2634,7 +2634,6 @@ export class ManagedInvestment extends Entity {
     super();
     this.set("id", Value.fromString(id));
 
-    this.set("investmentAddress", Value.fromString(""));
     this.set("manager", Value.fromString(""));
   }
 
@@ -2666,13 +2665,38 @@ export class ManagedInvestment extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get investmentAddress(): string {
-    let value = this.get("investmentAddress");
-    return value!.toString();
+  get pool(): string | null {
+    let value = this.get("pool");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set investmentAddress(value: string) {
-    this.set("investmentAddress", Value.fromString(value));
+  set pool(value: string | null) {
+    if (!value) {
+      this.unset("pool");
+    } else {
+      this.set("pool", Value.fromString(<string>value));
+    }
+  }
+
+  get NFTPool(): string | null {
+    let value = this.get("NFTPool");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set NFTPool(value: string | null) {
+    if (!value) {
+      this.unset("NFTPool");
+    } else {
+      this.set("NFTPool", Value.fromString(<string>value));
+    }
   }
 
   get manager(): string {

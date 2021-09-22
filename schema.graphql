@@ -33,7 +33,7 @@ type Pool @entity {
   tradeVolumeUSD: BigDecimal!
 
   # total fees collected in USD
-  feesCollected: BigInt!
+  feesCollected: BigDecimal!
 
   # TVL
   totalValueLockedUSD: BigDecimal!
@@ -69,7 +69,7 @@ type NFTPool @entity {
   tradeVolumeUSD: BigDecimal!
 
   # total fees collected in USD
-  feesCollected: BigInt!
+  feesCollected: BigDecimal!
 
   # TVL
   totalValueLockedUSD: BigDecimal!
@@ -336,7 +336,8 @@ type Bundle @entity {
 
 type ManagedInvestment @entity {
   id: ID!
-  investmentAddress: String! # address of pool or NFT pool
+  pool: Pool
+  NFTPool: NFTPool
   manager: User! # address of investment's manager
 }
 
