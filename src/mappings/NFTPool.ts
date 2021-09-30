@@ -26,10 +26,20 @@ import {
 } from "./helpers";
 
 export function handleDeposit(event: Deposit): void {
-    let pool = NFTPool.load(event.address.toHexString()) as NFTPool;
+    let pool = NFTPool.load(event.address.toHexString());
 
     let totalSupply = fetchNFTPoolTotalSupply(event.address);
     let tokenPrice = fetchNFTPoolTokenPrice(event.address);
+
+    // create the user
+    let user = User.load(event.params.userAddress.toHexString());
+    if (user === null)
+    {
+        user = new User(event.params.userAddress.toHexString());
+        user.feesEarned = ZERO_BD;
+    }
+
+    user.save();
   
     // update NFT pool data
     pool.tokenPrice = tokenPrice;
@@ -39,13 +49,13 @@ export function handleDeposit(event: Deposit): void {
     pool.save();
   
     // update global values
-    let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS) as Tradegen;
+    let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS);
     tradegen.totalVolumeUSD = tradegen.totalVolumeUSD.plus(new BigDecimal(event.params.amountOfUSD));
     tradegen.totalValueLockedUSD = tradegen.totalValueLockedUSD.plus(new BigDecimal(event.params.amountOfUSD));
     tradegen.txCount = tradegen.txCount.plus(ONE_BI);
     tradegen.save();
   
-    let transaction = NFTPoolTransaction.load(event.transaction.hash.toHexString()) as NFTPoolTransaction;
+    let transaction = NFTPoolTransaction.load(event.transaction.hash.toHexString());
     if (transaction === null) {
       transaction = new NFTPoolTransaction(event.transaction.hash.toHexString());
       transaction.blockNumber = event.block.number;
@@ -53,8 +63,10 @@ export function handleDeposit(event: Deposit): void {
       transaction.NFTPool = event.address.toHexString();
     }
 
+    transaction.save();
+
     // update deposit event
-    let deposit = new DepositNFTPoolEvent(event.transaction.hash.toHexString().concat("-deposit")) as DepositNFTPoolEvent;
+    let deposit = new DepositNFTPoolEvent(event.transaction.hash.toHexString().concat("-deposit"));
     deposit.NFTPoolTransaction = transaction.id;
     deposit.timestamp = transaction.timestamp;
     deposit.userAddress = event.params.userAddress.toHexString();
@@ -84,7 +96,7 @@ export function handleDeposit(event: Deposit): void {
     poolHourData.hourlyVolumeUSD = poolHourData.hourlyVolumeUSD.plus(new BigDecimal(event.params.amountOfUSD));
     poolHourData.save();
 
-    let poolPosition = NFTPoolPosition.load(event.address.toHexString().concat("-").concat(event.params.userAddress.toHexString())) as NFTPoolPosition;
+    let poolPosition = NFTPoolPosition.load(event.address.toHexString().concat("-").concat(event.params.userAddress.toHexString()));
     if (poolPosition === null)
     {
         poolPosition = new NFTPoolPosition(event.address.toHexString().concat("-").concat(event.params.userAddress.toHexString()));
@@ -100,9 +112,16 @@ export function handleDeposit(event: Deposit): void {
     poolPosition.averagePrice = newAveragePrice;
     poolPosition.tokenBalance = poolPosition.tokenBalance.plus(new BigDecimal(event.params.numberOfPoolTokens));
     poolPosition.save();
+}
+
+export function handleWithdraw(event: Withdraw): void {
+    let pool = NFTPool.load(event.address.toHexString());
+
+    let totalSupply = fetchNFTPoolTotalSupply(event.address);
+    let tokenPrice = fetchNFTPoolTokenPrice(event.address);
 
     // create the user
-    let user = User.load(event.params.userAddress.toHexString()) as User;
+    let user = User.load(event.params.userAddress.toHexString());
     if (user === null)
     {
         user = new User(event.params.userAddress.toHexString());
@@ -110,13 +129,6 @@ export function handleDeposit(event: Deposit): void {
     }
 
     user.save();
-}
-
-export function handleWithdraw(event: Withdraw): void {
-    let pool = NFTPool.load(event.address.toHexString()) as NFTPool;
-
-    let totalSupply = fetchNFTPoolTotalSupply(event.address);
-    let tokenPrice = fetchNFTPoolTokenPrice(event.address);
   
     // update pool data
     pool.tokenPrice = tokenPrice;
@@ -126,13 +138,13 @@ export function handleWithdraw(event: Withdraw): void {
     pool.save();
   
     // update global values
-    let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS) as Tradegen;
+    let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS);
     tradegen.totalVolumeUSD = tradegen.totalVolumeUSD.plus(new BigDecimal(event.params.valueWithdrawn));
     tradegen.totalValueLockedUSD = tradegen.totalValueLockedUSD.minus(new BigDecimal(event.params.valueWithdrawn));
     tradegen.txCount = tradegen.txCount.plus(ONE_BI);
     tradegen.save();
   
-    let transaction = NFTPoolTransaction.load(event.transaction.hash.toHexString()) as NFTPoolTransaction;
+    let transaction = NFTPoolTransaction.load(event.transaction.hash.toHexString());
     if (transaction === null) {
       transaction = new NFTPoolTransaction(event.transaction.hash.toHexString());
       transaction.blockNumber = event.block.number;
@@ -140,8 +152,10 @@ export function handleWithdraw(event: Withdraw): void {
       transaction.NFTPool = event.address.toHexString();
     }
 
+    transaction.save();
+
     // update withdraw event
-    let withdraw = new WithdrawNFTPoolEvent(event.transaction.hash.toHexString().concat("-withdraw")) as WithdrawNFTPoolEvent;
+    let withdraw = new WithdrawNFTPoolEvent(event.transaction.hash.toHexString().concat("-withdraw"));
     withdraw.NFTPoolTransaction = transaction.id;
     withdraw.timestamp = transaction.timestamp;
     withdraw.userAddress = event.params.userAddress.toHexString();
@@ -171,7 +185,7 @@ export function handleWithdraw(event: Withdraw): void {
     poolHourData.hourlyVolumeUSD = poolHourData.hourlyVolumeUSD.plus(new BigDecimal(event.params.valueWithdrawn));
     poolHourData.save();
 
-    let poolPosition = NFTPoolPosition.load(event.address.toHexString().concat("-").concat(event.params.userAddress.toHexString())) as NFTPoolPosition;
+    let poolPosition = NFTPoolPosition.load(event.address.toHexString().concat("-").concat(event.params.userAddress.toHexString()));
     if (poolPosition === null)
     {
         poolPosition = new NFTPoolPosition(event.address.toHexString().concat("-").concat(event.params.userAddress.toHexString()));
@@ -182,7 +196,7 @@ export function handleWithdraw(event: Withdraw): void {
     }
 
     let investedAmount = (poolPosition.tokenBalance).times(poolPosition.averagePrice).div(BigDecimal.fromString("1e18"));
-    let newAveragePrice = (new BigDecimal(event.params.numberOfPoolTokens) >= poolPosition.tokenBalance) ?
+    let newAveragePrice = (new BigDecimal(event.params.valueWithdrawn) >= investedAmount || new BigDecimal(event.params.numberOfPoolTokens) >= poolPosition.tokenBalance) ?
                             ZERO_BD :
                             (investedAmount.minus(new BigDecimal(event.params.valueWithdrawn))).div(poolPosition.tokenBalance.minus(new BigDecimal(event.params.numberOfPoolTokens)));
 

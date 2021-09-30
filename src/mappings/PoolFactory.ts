@@ -16,13 +16,12 @@ import {
   fetchPoolTotalSupply,
   fetchPoolTokenPrice,
   ZERO_BD,
-  ZERO_BI,
-  ONE_BI,
+  ZERO_BI
 } from "./helpers";
 
 export function handleNewPool(event: CreatedPool): void {
   // load Tradegen (create if first pool/NFTpool)
-  let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS) as Tradegen;
+  let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS);
   if (tradegen === null)
   {
     tradegen = new Tradegen(ADDRESS_RESOLVER_ADDRESS);
@@ -37,7 +36,7 @@ export function handleNewPool(event: CreatedPool): void {
   tradegen.save();
   
   // create the pool
-  let pool = new Pool(event.params.poolAddress.toHexString()) as Pool;
+  let pool = new Pool(event.params.poolAddress.toHexString());
   pool.name = fetchPoolName(event.params.poolAddress);
   pool.manager = event.params.managerAddress.toHexString();
   pool.performanceFee = fetchPoolPerformanceFee(event.params.poolAddress);
@@ -58,7 +57,7 @@ export function handleNewPool(event: CreatedPool): void {
   poolLookup.save();
 
   // create the user
-  let user = User.load(event.params.managerAddress.toHexString()) as User;
+  let user = User.load(event.params.managerAddress.toHexString());
   if (user === null)
   {
     user = new User(event.params.managerAddress.toHexString());
@@ -69,7 +68,7 @@ export function handleNewPool(event: CreatedPool): void {
   
   // create the managed investment
   let managedInvestmentID = event.params.managerAddress.toHexString().concat("-").concat(event.params.poolAddress.toHexString());
-  let managedInvestment = ManagedInvestment.load(managedInvestmentID) as ManagedInvestment;
+  let managedInvestment = ManagedInvestment.load(managedInvestmentID);
   if (managedInvestment === null)
   {
     managedInvestment = new ManagedInvestment(managedInvestmentID);
@@ -79,19 +78,18 @@ export function handleNewPool(event: CreatedPool): void {
 
   managedInvestment.save();
   
-  let poolTransaction = PoolTransaction.load(event.transaction.hash.toHexString()) as PoolTransaction;
+  let poolTransaction = PoolTransaction.load(event.transaction.hash.toHexString());
   if (poolTransaction === null)
   {
     let poolTransaction = new PoolTransaction(event.transaction.hash.toHexString());
     poolTransaction.blockNumber = event.block.number;
     poolTransaction.timestamp = event.block.timestamp;
     poolTransaction.pool = event.params.poolAddress.toHexString();
-    poolTransaction.create = event.transaction.hash.toHexString().concat("-create");
   }
 
   poolTransaction.save();
 
-  let createPoolTransaction = CreatePool.load(event.transaction.hash.toHexString().concat("-create")) as CreatePool;
+  let createPoolTransaction = CreatePool.load(event.transaction.hash.toHexString().concat("-create"));
   if (createPoolTransaction === null)
   {
     createPoolTransaction = new CreatePool(event.transaction.hash.toHexString().concat("-create"));
@@ -103,4 +101,8 @@ export function handleNewPool(event: CreatedPool): void {
   }
 
   createPoolTransaction.save();
+
+  poolTransaction.create = event.transaction.hash.toHexString().concat("-create");
+
+  poolTransaction.save();
 }
