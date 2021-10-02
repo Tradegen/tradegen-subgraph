@@ -93,7 +93,7 @@ type PoolPosition @entity {
   id: ID!
   user: User!
   pool: Pool!
-  tokenBalance: BigDecimal!
+  tokenBalance: BigInt!
   averagePrice: BigDecimal!
 }
 
@@ -101,7 +101,7 @@ type NFTPoolPosition @entity {
   id: ID!
   user: User!
   NFTPool: NFTPool!
-  tokenBalance: BigDecimal!
+  tokenBalance: BigInt!
   averagePrice: BigDecimal!
 }
 
@@ -185,7 +185,7 @@ type WithdrawPool @entity {
   userAddress: String!
   poolAddress: String!
   tokenAmount: BigInt! # number of pool tokens withdrawn
-  USDAmount: BigInt! # amount of USD withdrawn
+  USDAmount: BigDecimal! # amount of USD withdrawn
 }
 
 type WithdrawNFTPool @entity {
@@ -197,7 +197,7 @@ type WithdrawNFTPool @entity {
   userAddress: String!
   NFTPoolAddress: String!
   tokenAmount: BigInt! # number of NFT pool tokens withdrawn
-  USDAmount: BigInt! # amount of USD withdrawn
+  USDAmount: BigDecimal! # amount of USD withdrawn
 }
 
 type MintFeePool @entity {

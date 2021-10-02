@@ -22,7 +22,8 @@ import {
   fetchNFTPoolTotalSupply,
   ADDRESS_RESOLVER_ADDRESS,
   ONE_BI,
-  ZERO_BD
+  ZERO_BD,
+  ZERO_BI
 } from "./helpers";
 
 export function handleDeposit(event: Deposit): void {
@@ -102,15 +103,15 @@ export function handleDeposit(event: Deposit): void {
         poolPosition = new NFTPoolPosition(event.address.toHexString().concat("-").concat(event.params.userAddress.toHexString()));
         poolPosition.user = event.params.userAddress.toHexString();
         poolPosition.NFTPool = event.address.toHexString();
-        poolPosition.tokenBalance = ZERO_BD;
+        poolPosition.tokenBalance = ZERO_BI;
         poolPosition.averagePrice = ZERO_BD;
     }
 
-    let investedAmount = (poolPosition.tokenBalance).times(poolPosition.averagePrice).div(BigDecimal.fromString("1e18"));
-    let newAveragePrice = (investedAmount.plus(new BigDecimal(event.params.amountOfUSD))).div(poolPosition.tokenBalance.plus(new BigDecimal(event.params.numberOfPoolTokens)));
+    let investedAmount = (poolPosition.tokenBalance.toBigDecimal()).times(poolPosition.averagePrice).div(BigDecimal.fromString("1e18"));
+    let newAveragePrice = (investedAmount.plus(new BigDecimal(event.params.amountOfUSD))).div(poolPosition.tokenBalance.toBigDecimal().plus(event.params.numberOfPoolTokens.toBigDecimal()));
 
     poolPosition.averagePrice = newAveragePrice;
-    poolPosition.tokenBalance = poolPosition.tokenBalance.plus(new BigDecimal(event.params.numberOfPoolTokens));
+    poolPosition.tokenBalance = poolPosition.tokenBalance.plus(event.params.numberOfPoolTokens);
     poolPosition.save();
 }
 
@@ -129,18 +130,20 @@ export function handleWithdraw(event: Withdraw): void {
     }
 
     user.save();
+
+    let valueWithdrawn = (event.params.numberOfPoolTokens.toBigDecimal()).times(tokenPrice.toBigDecimal());
   
     // update pool data
     pool.tokenPrice = tokenPrice;
     pool.totalSupply = totalSupply;
-    pool.tradeVolumeUSD = pool.tradeVolumeUSD.plus(new BigDecimal(event.params.valueWithdrawn));
-    pool.totalValueLockedUSD = pool.totalValueLockedUSD.minus(new BigDecimal(event.params.valueWithdrawn));
+    pool.tradeVolumeUSD = pool.tradeVolumeUSD.plus(valueWithdrawn);
+    pool.totalValueLockedUSD = pool.totalValueLockedUSD.minus(valueWithdrawn);
     pool.save();
   
     // update global values
     let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS);
-    tradegen.totalVolumeUSD = tradegen.totalVolumeUSD.plus(new BigDecimal(event.params.valueWithdrawn));
-    tradegen.totalValueLockedUSD = tradegen.totalValueLockedUSD.minus(new BigDecimal(event.params.valueWithdrawn));
+    tradegen.totalVolumeUSD = tradegen.totalVolumeUSD.plus(valueWithdrawn);
+    tradegen.totalValueLockedUSD = tradegen.totalValueLockedUSD.minus(valueWithdrawn);
     tradegen.txCount = tradegen.txCount.plus(ONE_BI);
     tradegen.save();
   
@@ -161,7 +164,7 @@ export function handleWithdraw(event: Withdraw): void {
     withdraw.userAddress = event.params.userAddress.toHexString();
     withdraw.NFTPoolAddress = event.address.toHexString();
     withdraw.tokenAmount = event.params.numberOfPoolTokens;
-    withdraw.USDAmount = event.params.valueWithdrawn;
+    withdraw.USDAmount = valueWithdrawn;
     withdraw.save();
     
     // update the transaction
@@ -174,15 +177,15 @@ export function handleWithdraw(event: Withdraw): void {
     let tradegenDayData = updateTradegenDayData(event);
   
     // deposit specific updating
-    tradegenDayData.dailyVolumeUSD = tradegenDayData.dailyVolumeUSD.plus(new BigDecimal(event.params.valueWithdrawn));
+    tradegenDayData.dailyVolumeUSD = tradegenDayData.dailyVolumeUSD.plus(valueWithdrawn);
     tradegenDayData.save();
   
     // deposit specific updating for pool
-    poolDayData.dailyVolumeUSD = poolDayData.dailyVolumeUSD.plus(new BigDecimal(event.params.valueWithdrawn));
+    poolDayData.dailyVolumeUSD = poolDayData.dailyVolumeUSD.plus(valueWithdrawn);
     poolDayData.save();
   
     // update hourly pool data
-    poolHourData.hourlyVolumeUSD = poolHourData.hourlyVolumeUSD.plus(new BigDecimal(event.params.valueWithdrawn));
+    poolHourData.hourlyVolumeUSD = poolHourData.hourlyVolumeUSD.plus(valueWithdrawn);
     poolHourData.save();
 
     let poolPosition = NFTPoolPosition.load(event.address.toHexString().concat("-").concat(event.params.userAddress.toHexString()));
@@ -191,16 +194,16 @@ export function handleWithdraw(event: Withdraw): void {
         poolPosition = new NFTPoolPosition(event.address.toHexString().concat("-").concat(event.params.userAddress.toHexString()));
         poolPosition.user = event.params.userAddress.toHexString();
         poolPosition.NFTPool = event.address.toHexString();
-        poolPosition.tokenBalance = ZERO_BD;
+        poolPosition.tokenBalance = ZERO_BI;
         poolPosition.averagePrice = ZERO_BD;
     }
 
-    let investedAmount = (poolPosition.tokenBalance).times(poolPosition.averagePrice).div(BigDecimal.fromString("1e18"));
-    let newAveragePrice = (new BigDecimal(event.params.valueWithdrawn) >= investedAmount || new BigDecimal(event.params.numberOfPoolTokens) >= poolPosition.tokenBalance) ?
+    let investedAmount = (poolPosition.tokenBalance.toBigDecimal()).times(poolPosition.averagePrice).div(BigDecimal.fromString("1e18"));
+    let newAveragePrice = (new BigDecimal(event.params.valueWithdrawn) >= investedAmount || event.params.numberOfPoolTokens >= poolPosition.tokenBalance) ?
                             ZERO_BD :
-                            (investedAmount.minus(new BigDecimal(event.params.valueWithdrawn))).div(poolPosition.tokenBalance.minus(new BigDecimal(event.params.numberOfPoolTokens)));
+                            (investedAmount.minus(new BigDecimal(event.params.valueWithdrawn))).div(poolPosition.tokenBalance.toBigDecimal().minus(event.params.numberOfPoolTokens.toBigDecimal()));
 
     poolPosition.averagePrice = newAveragePrice;
-    poolPosition.tokenBalance = poolPosition.tokenBalance.minus(new BigDecimal(event.params.numberOfPoolTokens));
+    poolPosition.tokenBalance = poolPosition.tokenBalance.minus(event.params.numberOfPoolTokens);
     poolPosition.save();
 }

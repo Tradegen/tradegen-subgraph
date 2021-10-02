@@ -534,13 +534,13 @@ export class PoolPosition extends Entity {
     this.set("pool", Value.fromString(value));
   }
 
-  get tokenBalance(): BigDecimal {
+  get tokenBalance(): BigInt {
     let value = this.get("tokenBalance");
-    return value.toBigDecimal();
+    return value.toBigInt();
   }
 
-  set tokenBalance(value: BigDecimal) {
-    this.set("tokenBalance", Value.fromBigDecimal(value));
+  set tokenBalance(value: BigInt) {
+    this.set("tokenBalance", Value.fromBigInt(value));
   }
 
   get averagePrice(): BigDecimal {
@@ -601,13 +601,13 @@ export class NFTPoolPosition extends Entity {
     this.set("NFTPool", Value.fromString(value));
   }
 
-  get tokenBalance(): BigDecimal {
+  get tokenBalance(): BigInt {
     let value = this.get("tokenBalance");
-    return value.toBigDecimal();
+    return value.toBigInt();
   }
 
-  set tokenBalance(value: BigDecimal) {
-    this.set("tokenBalance", Value.fromBigDecimal(value));
+  set tokenBalance(value: BigInt) {
+    this.set("tokenBalance", Value.fromBigInt(value));
   }
 
   get averagePrice(): BigDecimal {
@@ -1261,13 +1261,13 @@ export class WithdrawPool extends Entity {
     this.set("tokenAmount", Value.fromBigInt(value));
   }
 
-  get USDAmount(): BigInt {
+  get USDAmount(): BigDecimal {
     let value = this.get("USDAmount");
-    return value.toBigInt();
+    return value.toBigDecimal();
   }
 
-  set USDAmount(value: BigInt) {
-    this.set("USDAmount", Value.fromBigInt(value));
+  set USDAmount(value: BigDecimal) {
+    this.set("USDAmount", Value.fromBigDecimal(value));
   }
 }
 
@@ -1346,13 +1346,13 @@ export class WithdrawNFTPool extends Entity {
     this.set("tokenAmount", Value.fromBigInt(value));
   }
 
-  get USDAmount(): BigInt {
+  get USDAmount(): BigDecimal {
     let value = this.get("USDAmount");
-    return value.toBigInt();
+    return value.toBigDecimal();
   }
 
-  set USDAmount(value: BigInt) {
-    this.set("USDAmount", Value.fromBigInt(value));
+  set USDAmount(value: BigDecimal) {
+    this.set("USDAmount", Value.fromBigDecimal(value));
   }
 }
 
