@@ -20,10 +20,12 @@ import {
 import {
   fetchNFTPoolTokenPrice,
   fetchNFTPoolTotalSupply,
+  fetchNFTPoolPositionsAndTotal,
   ADDRESS_RESOLVER_ADDRESS,
   ONE_BI,
   ZERO_BD,
-  ZERO_BI
+  ZERO_BI,
+  IPositionsAndBalances
 } from "./helpers";
 
 export function handleDeposit(event: Deposit): void {
@@ -31,6 +33,7 @@ export function handleDeposit(event: Deposit): void {
 
     let totalSupply = fetchNFTPoolTotalSupply(event.address);
     let tokenPrice = fetchNFTPoolTokenPrice(event.address);
+    let positionsAndBalances: IPositionsAndBalances = fetchNFTPoolPositionsAndTotal(event.address);
 
     // create the user
     let user = User.load(event.params.userAddress.toHexString());
@@ -47,6 +50,8 @@ export function handleDeposit(event: Deposit): void {
     pool.totalSupply = totalSupply;
     pool.tradeVolumeUSD = pool.tradeVolumeUSD.plus(new BigDecimal(event.params.amountOfUSD));
     pool.totalValueLockedUSD = pool.totalValueLockedUSD.plus(new BigDecimal(event.params.amountOfUSD));
+    pool.positionAddresses = positionsAndBalances.positions ?? pool.positionAddresses;
+    pool.positionBalances = positionsAndBalances.balances ?? pool.positionBalances;
     pool.save();
   
     // update global values
@@ -120,6 +125,7 @@ export function handleWithdraw(event: Withdraw): void {
 
     let totalSupply = fetchNFTPoolTotalSupply(event.address);
     let tokenPrice = fetchNFTPoolTokenPrice(event.address);
+    let positionsAndBalances: IPositionsAndBalances = fetchNFTPoolPositionsAndTotal(event.address);
 
     // create the user
     let user = User.load(event.params.userAddress.toHexString());
@@ -138,6 +144,8 @@ export function handleWithdraw(event: Withdraw): void {
     pool.totalSupply = totalSupply;
     pool.tradeVolumeUSD = pool.tradeVolumeUSD.plus(valueWithdrawn);
     pool.totalValueLockedUSD = pool.totalValueLockedUSD.minus(valueWithdrawn);
+    pool.positionAddresses = positionsAndBalances.positions ?? pool.positionAddresses;
+    pool.positionBalances = positionsAndBalances.balances ?? pool.positionBalances;
     pool.save();
   
     // update global values

@@ -22,10 +22,12 @@ import {
 import {
   fetchPoolTokenPrice,
   fetchPoolTotalSupply,
+  fetchPoolPositionsAndTotal,
   ADDRESS_RESOLVER_ADDRESS,
   ONE_BI,
   ZERO_BD,
-  ZERO_BI
+  ZERO_BI,
+  IPositionsAndBalances
 } from "./helpers";
 
 export function handleDeposit(event: Deposit): void {
@@ -33,6 +35,7 @@ export function handleDeposit(event: Deposit): void {
 
     let totalSupply = fetchPoolTotalSupply(event.address);
     let tokenPrice = fetchPoolTokenPrice(event.address);
+    let positionsAndBalances: IPositionsAndBalances = fetchPoolPositionsAndTotal(event.address);
 
     // create the user
     let user = User.load(event.params.userAddress.toHexString());
@@ -49,6 +52,8 @@ export function handleDeposit(event: Deposit): void {
     pool.totalSupply = totalSupply;
     pool.tradeVolumeUSD = pool.tradeVolumeUSD.plus(new BigDecimal(event.params.amount));
     pool.totalValueLockedUSD = pool.totalValueLockedUSD.plus(new BigDecimal(event.params.amount));
+    pool.positionAddresses = positionsAndBalances.positions ?? pool.positionAddresses;
+    pool.positionBalances = positionsAndBalances.balances ?? pool.positionBalances;
     pool.save();
     
     // update global values
@@ -123,6 +128,7 @@ export function handleWithdraw(event: Withdraw): void {
 
     let totalSupply = fetchPoolTotalSupply(event.address);
     let tokenPrice = fetchPoolTokenPrice(event.address);
+    let positionsAndBalances: IPositionsAndBalances = fetchPoolPositionsAndTotal(event.address);
 
     // create the user
     let user = User.load(event.params.userAddress.toHexString());
@@ -141,6 +147,8 @@ export function handleWithdraw(event: Withdraw): void {
     pool.totalSupply = totalSupply;
     pool.tradeVolumeUSD = pool.tradeVolumeUSD.plus(valueWithdrawn);
     pool.totalValueLockedUSD = pool.totalValueLockedUSD.minus(valueWithdrawn);
+    pool.positionAddresses = positionsAndBalances.positions ?? pool.positionAddresses;
+    pool.positionBalances = positionsAndBalances.balances ?? pool.positionBalances;
     pool.save();
   
     // update global values
@@ -217,6 +225,7 @@ export function handleMintedManagerFee(event: MintedManagerFee): void {
 
     let totalSupply = fetchPoolTotalSupply(event.address);
     let tokenPrice = fetchPoolTokenPrice(event.address);
+    let positionsAndBalances: IPositionsAndBalances = fetchPoolPositionsAndTotal(event.address);
     let feeInUSD: BigDecimal = (event.params.amount.toBigDecimal()).times(new BigDecimal(tokenPrice)).div(BigDecimal.fromString("1e18"));
 
     // create the user
@@ -236,6 +245,8 @@ export function handleMintedManagerFee(event: MintedManagerFee): void {
     pool.totalSupply = totalSupply;
     pool.tradeVolumeUSD = pool.tradeVolumeUSD.plus(feeInUSD);
     pool.totalValueLockedUSD = pool.totalValueLockedUSD.plus(feeInUSD);
+    pool.positionAddresses = positionsAndBalances.positions ?? pool.positionAddresses;
+    pool.positionBalances = positionsAndBalances.balances ?? pool.positionBalances;
     pool.save();
   
     // update global values

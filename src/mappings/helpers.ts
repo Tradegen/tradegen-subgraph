@@ -180,6 +180,22 @@ export function fetchNFTPoolTotalSupply(NFTPoolAddress: Address): BigInt {
   return totalSupplyResult.value ? totalSupplyResult.value : totalSupplyValue;
 }
 
+export function fetchNFTPoolPositionsAndTotal(NFTPoolAddress: Address): IPositionsAndBalances {
+  let contract = NFTPoolContract.bind(NFTPoolAddress);
+
+  // get positions and balances
+  let value = {
+    positions: [],
+    balances: []
+  };
+  let result = contract.try_getPositionsAndTotal();
+
+  return result.value ? {
+    positions: result.value[0],
+    balances: result.value[1]
+  } : value;
+}
+
 export function createUser(address: Address): void {
   let user = User.load(address.toHexString());
   if (user === null)

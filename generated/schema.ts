@@ -190,6 +190,46 @@ export class Pool extends Entity {
     this.set("totalValueLockedUSD", Value.fromBigDecimal(value));
   }
 
+  get positionAddresses(): Array<string> | null {
+    let value = this.get("positionAddresses");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set positionAddresses(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("positionAddresses");
+    } else {
+      this.set(
+        "positionAddresses",
+        Value.fromStringArray(value as Array<string>)
+      );
+    }
+  }
+
+  get positionBalances(): Array<BigInt> | null {
+    let value = this.get("positionBalances");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigIntArray();
+    }
+  }
+
+  set positionBalances(value: Array<BigInt> | null) {
+    if (value === null) {
+      this.unset("positionBalances");
+    } else {
+      this.set(
+        "positionBalances",
+        Value.fromBigIntArray(value as Array<BigInt>)
+      );
+    }
+  }
+
   get poolDayData(): Array<string> {
     let value = this.get("poolDayData");
     return value.toStringArray();
@@ -318,6 +358,46 @@ export class NFTPool extends Entity {
 
   set totalValueLockedUSD(value: BigDecimal) {
     this.set("totalValueLockedUSD", Value.fromBigDecimal(value));
+  }
+
+  get positionAddresses(): Array<string> | null {
+    let value = this.get("positionAddresses");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set positionAddresses(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("positionAddresses");
+    } else {
+      this.set(
+        "positionAddresses",
+        Value.fromStringArray(value as Array<string>)
+      );
+    }
+  }
+
+  get positionBalances(): Array<BigInt> | null {
+    let value = this.get("positionBalances");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigIntArray();
+    }
+  }
+
+  set positionBalances(value: Array<BigInt> | null) {
+    if (value === null) {
+      this.unset("positionBalances");
+    } else {
+      this.set(
+        "positionBalances",
+        Value.fromBigIntArray(value as Array<BigInt>)
+      );
+    }
   }
 
   get poolDayData(): Array<string> {
