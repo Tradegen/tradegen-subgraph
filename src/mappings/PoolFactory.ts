@@ -19,7 +19,8 @@ import {
   fetchPoolTotalSupply,
   fetchPoolTokenPrice,
   ZERO_BD,
-  ZERO_BI
+  ZERO_BI,
+  ONE_BI
 } from "./helpers";
 
 export function handleNewPool(event: CreatedPool): void {
@@ -39,6 +40,7 @@ export function handleNewPool(event: CreatedPool): void {
   log.error("PoolFactory: created Tradegen", [ADDRESS_RESOLVER_ADDRESS]);
   
   tradegen.poolCount = tradegen.poolCount + 1;
+  tradegen.txCount = tradegen.txCount.plus(ONE_BI)
   tradegen.save();
   
   log.error("PoolFactory: saved Tradegen", []);
@@ -65,7 +67,7 @@ export function handleNewPool(event: CreatedPool): void {
 
   // save updated values
   poolLookup.save();
-
+  
   log.error("PoolFactory: saved pool and pool lookup", [event.params.poolAddress.toHexString()]);
 
   // create the tracked contract based on the template
@@ -84,38 +86,30 @@ export function handleNewPool(event: CreatedPool): void {
   log.error("PoolFactory: loaded user", [event.params.poolAddress.toHexString()]);
 
   user.save();
-
+  
   log.error("PoolFactory: saved user", [event.params.poolAddress.toHexString()]);
   
   // create the managed investment
   let managedInvestmentID = event.params.managerAddress.toHexString().concat("-").concat(event.params.poolAddress.toHexString());
-  let managedInvestment = ManagedInvestment.load(managedInvestmentID);
-  if (managedInvestment === null)
-  {
-    managedInvestment = new ManagedInvestment(managedInvestmentID);
-    managedInvestment.pool = pool.id;
-    managedInvestment.manager = user.id;
-  }
+  let managedInvestment = new ManagedInvestment(managedInvestmentID);
+  managedInvestment.pool = pool.id;
+  managedInvestment.manager = user.id;
 
   log.error("PoolFactory: created managed investment", [event.params.poolAddress.toHexString()]);
 
   managedInvestment.save();
-
+  
   log.error("PoolFactory: saved managed investment", [event.params.poolAddress.toHexString()]);
   
-  let poolTransaction = PoolTransaction.load(event.transaction.hash.toHexString());
-  if (poolTransaction === null)
-  {
-    let poolTransaction = new PoolTransaction(event.transaction.hash.toHexString());
-    poolTransaction.blockNumber = event.block.number;
-    poolTransaction.timestamp = event.block.timestamp;
-    poolTransaction.pool = pool.id;
-  }
+  let poolTransaction = new PoolTransaction(event.transaction.hash.toHexString());
+  poolTransaction.blockNumber = event.block.number;
+  poolTransaction.timestamp = event.block.timestamp;
+  poolTransaction.pool = pool.id;
 
   log.error("PoolFactory: created pool transaction", [event.params.poolAddress.toHexString()]);
 
   poolTransaction.save();
-
+  /*
   log.error("PoolFactory: saved pool transaction", [event.params.poolAddress.toHexString()]);
   /*
   let createPoolTransaction = new CreatePool(event.transaction.hash.toHexString().concat("-create"));

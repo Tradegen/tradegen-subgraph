@@ -26,11 +26,6 @@ export let ZERO_BD = BigDecimal.fromString("0");
 export let ONE_BD = BigDecimal.fromString("1");
 export let BI_18 = BigInt.fromI32(18);
 
-export interface IPositionsAndBalances {
-  positions: string[]
-  balances: BigInt[]
-}
-
 export let poolFactoryContract = PoolFactory.bind(
   Address.fromString(POOL_FACTORY_ADDRESS)
 );
@@ -81,20 +76,29 @@ export function isNullEthValue(value: string): boolean {
   );
 }
 
-export function fetchPoolPositionsAndTotal(poolAddress: Address): IPositionsAndBalances {
+export function fetchPoolPositionAddresses(poolAddress: Address): string[] {
   let contract = PoolContract.bind(poolAddress);
 
   // get positions and balances
-  let value = {
-    positions: [],
-    balances: []
-  };
   let result = contract.try_getPositionsAndTotal();
+  let resultValue0 = result.value.toMap().get("value0").toAddressArray();
+  let results:string[] = [];
+  for (var i = 0; i < resultValue0.length; i++)
+  {
+    results.push(resultValue0[i].toHexString());
+  }
 
-  return result.value ? {
-    positions: result.value[0],
-    balances: result.value[1]
-  } : value;
+  return (results.length > 0) ? results : [ADDRESS_ZERO];
+}
+
+export function fetchPoolPositionBalances(poolAddress: Address): BigInt[] {
+  let contract = PoolContract.bind(poolAddress);
+
+  // get positions and balances
+  let result = contract.try_getPositionsAndTotal();
+  let resultValue1:BigInt[]  = result.value.toMap().get("value1").toBigIntArray();
+
+  return (resultValue1.length > 0) ? resultValue1 : [ZERO_BI];
 }
 
 export function fetchPoolName(poolAddress: Address): string {
@@ -110,7 +114,7 @@ export function fetchPoolName(poolAddress: Address): string {
 export function fetchPoolPerformanceFee(poolAddress: Address): BigInt {
   let contract = PoolContract.bind(poolAddress);
 
-  let performanceFeeValue = new BigInt(0);
+  let performanceFeeValue = ZERO_BI;
   let performanceFeeResult = contract.try__performanceFee();
 
   return performanceFeeResult.value ? performanceFeeResult.value : performanceFeeValue;
@@ -119,7 +123,7 @@ export function fetchPoolPerformanceFee(poolAddress: Address): BigInt {
 export function fetchPoolTokenPrice(poolAddress: Address): BigInt {
   let contract = PoolContract.bind(poolAddress);
 
-  let tokenPriceValue = new BigInt(0);
+  let tokenPriceValue = ZERO_BI;
   let tokenPriceResult = contract.try_tokenPrice();
 
   return tokenPriceResult.value ? tokenPriceResult.value : tokenPriceValue;
@@ -128,7 +132,7 @@ export function fetchPoolTokenPrice(poolAddress: Address): BigInt {
 export function fetchPoolTotalSupply(poolAddress: Address): BigInt {
   let contract = PoolContract.bind(poolAddress);
 
-  let totalSupplyValue = new BigInt(0);
+  let totalSupplyValue = ZERO_BI;
   let totalSupplyResult = contract.try_totalSupply();
 
   return totalSupplyResult.value ? totalSupplyResult.value : totalSupplyValue;
@@ -147,7 +151,7 @@ export function fetchNFTPoolName(NFTPoolAddress: Address): string {
 export function fetchNFTPoolMaxSupply(NFTPoolAddress: Address): BigInt {
   let contract = NFTPoolContract.bind(NFTPoolAddress);
 
-  let maxSupplyValue = new BigInt(0);
+  let maxSupplyValue = ZERO_BI;
   let maxSupplyResult = contract.try_maxSupply();
 
   return maxSupplyResult.value ? maxSupplyResult.value : maxSupplyValue;
@@ -156,7 +160,7 @@ export function fetchNFTPoolMaxSupply(NFTPoolAddress: Address): BigInt {
 export function fetchNFTPoolSeedPrice(NFTPoolAddress: Address): BigInt {
   let contract = NFTPoolContract.bind(NFTPoolAddress);
 
-  let seedPriceValue = new BigInt(0);
+  let seedPriceValue = ZERO_BI;
   let seedPriceResult = contract.try_seedPrice();
 
   return seedPriceResult.value ? seedPriceResult.value : seedPriceValue;
@@ -165,7 +169,7 @@ export function fetchNFTPoolSeedPrice(NFTPoolAddress: Address): BigInt {
 export function fetchNFTPoolTokenPrice(NFTPoolAddress: Address): BigInt {
   let contract = NFTPoolContract.bind(NFTPoolAddress);
 
-  let tokenPriceValue = new BigInt(0);
+  let tokenPriceValue = ZERO_BI;
   let tokenPriceResult = contract.try_tokenPrice();
 
   return tokenPriceResult.value ? tokenPriceResult.value : tokenPriceValue;
@@ -174,26 +178,35 @@ export function fetchNFTPoolTokenPrice(NFTPoolAddress: Address): BigInt {
 export function fetchNFTPoolTotalSupply(NFTPoolAddress: Address): BigInt {
   let contract = NFTPoolContract.bind(NFTPoolAddress);
 
-  let totalSupplyValue = new BigInt(0);
+  let totalSupplyValue = ZERO_BI;
   let totalSupplyResult = contract.try_totalSupply();
 
   return totalSupplyResult.value ? totalSupplyResult.value : totalSupplyValue;
 }
 
-export function fetchNFTPoolPositionsAndTotal(NFTPoolAddress: Address): IPositionsAndBalances {
-  let contract = NFTPoolContract.bind(NFTPoolAddress);
+export function fetchNFTPoolPositionAddresses(poolAddress: Address): string[] {
+  let contract = NFTPoolContract.bind(poolAddress);
 
   // get positions and balances
-  let value = {
-    positions: [],
-    balances: []
-  };
   let result = contract.try_getPositionsAndTotal();
+  let resultValue0 = result.value.toMap().get("value0").toAddressArray();
+  let results:string[] = [];
+  for (var i = 0; i < resultValue0.length; i++)
+  {
+    results.push(resultValue0[i].toHexString());
+  }
 
-  return result.value ? {
-    positions: result.value[0],
-    balances: result.value[1]
-  } : value;
+  return (results.length > 0) ? results : [ADDRESS_ZERO];
+}
+
+export function fetchNFTPoolPositionBalances(poolAddress: Address): BigInt[] {
+  let contract = NFTPoolContract.bind(poolAddress);
+
+  // get positions and balances
+  let result = contract.try_getPositionsAndTotal();
+  let resultValue1:BigInt[]  = result.value.toMap().get("value1").toBigIntArray();
+
+  return (resultValue1.length > 0) ? resultValue1 : [ZERO_BI];
 }
 
 export function createUser(address: Address): void {
@@ -215,7 +228,7 @@ export function createPoolPosition(
   if (poolPosition === null)
   {
     poolPosition.tokenBalance = ZERO_BI;
-    poolPosition.averagePrice = ZERO_BD;
+    poolPosition.USDValue = ZERO_BI;
     poolPosition.pool = poolAddress.toHexString();
     poolPosition.user = userAddress.toHexString();
     poolPosition.save();
@@ -233,7 +246,7 @@ export function createNFTPoolPosition(
   if (poolPosition === null)
   {
     poolPosition.tokenBalance = ZERO_BI;
-    poolPosition.averagePrice = ZERO_BD;
+    poolPosition.USDValue = ZERO_BI;
     poolPosition.NFTPool = NFTPoolAddress.toHexString();
     poolPosition.user = userAddress.toHexString();
     poolPosition.save();

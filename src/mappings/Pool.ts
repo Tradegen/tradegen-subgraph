@@ -13,6 +13,7 @@ import {
   Deposit,
   Withdraw,
   MintedManagerFee,
+  ExecutedTransaction
 } from "../../generated/templates/Pool/Pool";
 import {
   updatePoolDayData,
@@ -22,20 +23,23 @@ import {
 import {
   fetchPoolTokenPrice,
   fetchPoolTotalSupply,
-  fetchPoolPositionsAndTotal,
+  fetchPoolPositionAddresses,
+  fetchPoolPositionBalances,
   ADDRESS_RESOLVER_ADDRESS,
   ONE_BI,
   ZERO_BD,
-  ZERO_BI,
-  IPositionsAndBalances
+  ZERO_BI
 } from "./helpers";
 
 export function handleDeposit(event: Deposit): void {
     let pool = Pool.load(event.address.toHexString());
-
+    
     let totalSupply = fetchPoolTotalSupply(event.address);
     let tokenPrice = fetchPoolTokenPrice(event.address);
-    let positionsAndBalances: IPositionsAndBalances = fetchPoolPositionsAndTotal(event.address);
+    let positionAddresses = fetchPoolPositionAddresses(event.address);
+    let positionBalances = fetchPoolPositionBalances(event.address);
+
+    tokenPrice = (tokenPrice == ZERO_BI) ? BigInt.fromString("1000000000000000000") : tokenPrice;
 
     // create the user
     let user = User.load(event.params.userAddress.toHexString());
@@ -52,8 +56,8 @@ export function handleDeposit(event: Deposit): void {
     pool.totalSupply = totalSupply;
     pool.tradeVolumeUSD = pool.tradeVolumeUSD.plus(new BigDecimal(event.params.amount));
     pool.totalValueLockedUSD = pool.totalValueLockedUSD.plus(new BigDecimal(event.params.amount));
-    pool.positionAddresses = positionsAndBalances.positions ?? pool.positionAddresses;
-    pool.positionBalances = positionsAndBalances.balances ?? pool.positionBalances;
+    pool.positionAddresses = (positionAddresses) ? positionAddresses : pool.positionAddresses;
+    pool.positionBalances = (positionBalances) ? positionBalances : pool.positionBalances;
     pool.save();
     
     // update global values
@@ -110,25 +114,24 @@ export function handleDeposit(event: Deposit): void {
         poolPosition.user = event.params.userAddress.toHexString();
         poolPosition.pool = event.address.toHexString();
         poolPosition.tokenBalance = ZERO_BI;
-        poolPosition.averagePrice = ZERO_BD;
+        poolPosition.USDValue = ZERO_BI
     }
 
-    let investedAmount = (poolPosition.tokenBalance.toBigDecimal()).times(poolPosition.averagePrice);
-    investedAmount = investedAmount.div(BigDecimal.fromString("1e18"));
-    let tokensAdded: BigInt = (tokenPrice == new BigInt(0)) ? ZERO_BI : (event.params.amount).times(BigInt.fromString("1e18")).div(tokenPrice);
-    let newAveragePrice: BigDecimal = (investedAmount.plus(event.params.amount.toBigDecimal())).div(poolPosition.tokenBalance.toBigDecimal().plus(tokensAdded.toBigDecimal()));
-    
-    poolPosition.averagePrice = newAveragePrice;
+    let tokensAdded: BigInt = (tokenPrice == ZERO_BI) ? ZERO_BI : (event.params.amount).times(BigInt.fromString("1000000000000000000")).div(tokenPrice);
     poolPosition.tokenBalance = poolPosition.tokenBalance.plus(tokensAdded);
+    poolPosition.USDValue = poolPosition.USDValue.plus(event.params.amount);
     poolPosition.save();
 }
 
 export function handleWithdraw(event: Withdraw): void {
     let pool = Pool.load(event.address.toHexString());
-
+    
     let totalSupply = fetchPoolTotalSupply(event.address);
     let tokenPrice = fetchPoolTokenPrice(event.address);
-    let positionsAndBalances: IPositionsAndBalances = fetchPoolPositionsAndTotal(event.address);
+    let positionAddresses = fetchPoolPositionAddresses(event.address);
+    let positionBalances = fetchPoolPositionBalances(event.address);
+
+    tokenPrice = (tokenPrice == ZERO_BI) ? BigInt.fromString("1000000000000000000") : tokenPrice;
 
     // create the user
     let user = User.load(event.params.userAddress.toHexString());
@@ -140,21 +143,21 @@ export function handleWithdraw(event: Withdraw): void {
 
     user.save();
 
-    let valueWithdrawn = (event.params.numberOfPoolTokens.toBigDecimal()).times(tokenPrice.toBigDecimal()).div(BigDecimal.fromString("1e18"));
+    let valueWithdrawn: BigInt = (event.params.numberOfPoolTokens).times(tokenPrice).div(BigInt.fromString("1000000000000000000"));
   
     // update pool data
     pool.tokenPrice = tokenPrice;
     pool.totalSupply = totalSupply;
-    pool.tradeVolumeUSD = pool.tradeVolumeUSD.plus(valueWithdrawn);
-    pool.totalValueLockedUSD = pool.totalValueLockedUSD.minus(valueWithdrawn);
-    pool.positionAddresses = positionsAndBalances.positions ?? pool.positionAddresses;
-    pool.positionBalances = positionsAndBalances.balances ?? pool.positionBalances;
+    pool.tradeVolumeUSD = pool.tradeVolumeUSD.plus(valueWithdrawn.toBigDecimal());
+    pool.totalValueLockedUSD = (valueWithdrawn.toBigDecimal() >= pool.totalValueLockedUSD) ? ZERO_BD : pool.totalValueLockedUSD.minus(valueWithdrawn.toBigDecimal());
+    pool.positionAddresses = (positionAddresses) ? positionAddresses : pool.positionAddresses;
+    pool.positionBalances = (positionBalances) ? positionBalances : pool.positionBalances;
     pool.save();
   
     // update global values
     let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS);
-    tradegen.totalVolumeUSD = tradegen.totalVolumeUSD.plus(valueWithdrawn);
-    tradegen.totalValueLockedUSD = tradegen.totalValueLockedUSD.minus(valueWithdrawn);
+    tradegen.totalVolumeUSD = tradegen.totalVolumeUSD.plus(valueWithdrawn.toBigDecimal());
+    tradegen.totalValueLockedUSD = (valueWithdrawn.toBigDecimal() >= tradegen.totalValueLockedUSD) ? ZERO_BD : tradegen.totalValueLockedUSD.minus(valueWithdrawn.toBigDecimal());
     tradegen.txCount = tradegen.txCount.plus(ONE_BI);
     tradegen.save();
   
@@ -175,7 +178,7 @@ export function handleWithdraw(event: Withdraw): void {
     withdraw.userAddress = event.params.userAddress.toHexString();
     withdraw.poolAddress = event.address.toHexString();
     withdraw.tokenAmount = event.params.numberOfPoolTokens;
-    withdraw.USDAmount = valueWithdrawn;
+    withdraw.USDAmount = valueWithdrawn.toBigDecimal();
     withdraw.save();
     
     // update the transaction
@@ -188,15 +191,15 @@ export function handleWithdraw(event: Withdraw): void {
     let tradegenDayData = updateTradegenDayData(event);
   
     // deposit specific updating
-    tradegenDayData.dailyVolumeUSD = tradegenDayData.dailyVolumeUSD.plus(valueWithdrawn);
+    tradegenDayData.dailyVolumeUSD = tradegenDayData.dailyVolumeUSD.plus(valueWithdrawn.toBigDecimal());
     tradegenDayData.save();
   
     // deposit specific updating for pool
-    poolDayData.dailyVolumeUSD = poolDayData.dailyVolumeUSD.plus(valueWithdrawn);
+    poolDayData.dailyVolumeUSD = poolDayData.dailyVolumeUSD.plus(valueWithdrawn.toBigDecimal());
     poolDayData.save();
   
     // update hourly pool data
-    poolHourData.hourlyVolumeUSD = poolHourData.hourlyVolumeUSD.plus(valueWithdrawn);
+    poolHourData.hourlyVolumeUSD = poolHourData.hourlyVolumeUSD.plus(valueWithdrawn.toBigDecimal());
     poolHourData.save();
 
     let poolPosition = PoolPosition.load(event.address.toHexString().concat("-").concat(event.params.userAddress.toHexString()));
@@ -206,15 +209,10 @@ export function handleWithdraw(event: Withdraw): void {
         poolPosition.user = event.params.userAddress.toHexString();
         poolPosition.pool = event.address.toHexString();
         poolPosition.tokenBalance = ZERO_BI;
-        poolPosition.averagePrice = ZERO_BD;
+        poolPosition.USDValue = ZERO_BI;
     }
 
-    let investedAmount = (poolPosition.tokenBalance.toBigDecimal()).times(poolPosition.averagePrice).div(BigDecimal.fromString("1e18"));
-    let newAveragePrice = (new BigDecimal(event.params.valueWithdrawn) >= investedAmount || event.params.numberOfPoolTokens >= poolPosition.tokenBalance) ?
-                            ZERO_BD :
-                            (investedAmount.minus(new BigDecimal(event.params.valueWithdrawn))).div(poolPosition.tokenBalance.toBigDecimal().minus(event.params.numberOfPoolTokens.toBigDecimal()));
-
-    poolPosition.averagePrice = newAveragePrice;
+    poolPosition.USDValue = (valueWithdrawn >= poolPosition.USDValue) ? ZERO_BI : poolPosition.USDValue.minus(valueWithdrawn);
     poolPosition.tokenBalance = (event.params.numberOfPoolTokens >= poolPosition.tokenBalance) ?
                                   ZERO_BI : poolPosition.tokenBalance.minus(event.params.numberOfPoolTokens);
     poolPosition.save();
@@ -222,11 +220,12 @@ export function handleWithdraw(event: Withdraw): void {
 
 export function handleMintedManagerFee(event: MintedManagerFee): void {
     let pool = Pool.load(event.address.toHexString());
-
+    
     let totalSupply = fetchPoolTotalSupply(event.address);
     let tokenPrice = fetchPoolTokenPrice(event.address);
-    let positionsAndBalances: IPositionsAndBalances = fetchPoolPositionsAndTotal(event.address);
     let feeInUSD: BigDecimal = (event.params.amount.toBigDecimal()).times(new BigDecimal(tokenPrice)).div(BigDecimal.fromString("1e18"));
+
+    tokenPrice = (tokenPrice == ZERO_BI) ? BigInt.fromString("1000000000000000000") : tokenPrice;
 
     // create the user
     let user = User.load(event.params.manager.toHexString());
@@ -245,8 +244,6 @@ export function handleMintedManagerFee(event: MintedManagerFee): void {
     pool.totalSupply = totalSupply;
     pool.tradeVolumeUSD = pool.tradeVolumeUSD.plus(feeInUSD);
     pool.totalValueLockedUSD = pool.totalValueLockedUSD.plus(feeInUSD);
-    pool.positionAddresses = positionsAndBalances.positions ?? pool.positionAddresses;
-    pool.positionBalances = positionsAndBalances.balances ?? pool.positionBalances;
     pool.save();
   
     // update global values
@@ -295,4 +292,16 @@ export function handleMintedManagerFee(event: MintedManagerFee): void {
     // update hourly pool data
     poolHourData.hourlyVolumeUSD = poolHourData.hourlyVolumeUSD.plus(new BigDecimal(event.params.amount));
     poolHourData.save();
+}
+
+export function handleExecutedTransaction(event: ExecutedTransaction): void {
+  let pool = Pool.load(event.address.toHexString());
+  
+  let positionAddresses = fetchPoolPositionAddresses(event.address);
+  let positionBalances = fetchPoolPositionBalances(event.address);
+
+  // update pool data
+  pool.positionAddresses = (positionAddresses) ? positionAddresses : pool.positionAddresses;
+  pool.positionBalances = (positionBalances) ? positionBalances : pool.positionBalances;
+  pool.save();
 }

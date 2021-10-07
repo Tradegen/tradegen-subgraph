@@ -623,13 +623,13 @@ export class PoolPosition extends Entity {
     this.set("tokenBalance", Value.fromBigInt(value));
   }
 
-  get averagePrice(): BigDecimal {
-    let value = this.get("averagePrice");
-    return value.toBigDecimal();
+  get USDValue(): BigInt {
+    let value = this.get("USDValue");
+    return value.toBigInt();
   }
 
-  set averagePrice(value: BigDecimal) {
-    this.set("averagePrice", Value.fromBigDecimal(value));
+  set USDValue(value: BigInt) {
+    this.set("USDValue", Value.fromBigInt(value));
   }
 }
 
@@ -690,13 +690,13 @@ export class NFTPoolPosition extends Entity {
     this.set("tokenBalance", Value.fromBigInt(value));
   }
 
-  get averagePrice(): BigDecimal {
-    let value = this.get("averagePrice");
-    return value.toBigDecimal();
+  get USDValue(): BigInt {
+    let value = this.get("USDValue");
+    return value.toBigInt();
   }
 
-  set averagePrice(value: BigDecimal) {
-    this.set("averagePrice", Value.fromBigDecimal(value));
+  set USDValue(value: BigInt) {
+    this.set("USDValue", Value.fromBigInt(value));
   }
 }
 

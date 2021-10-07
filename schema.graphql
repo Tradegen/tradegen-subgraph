@@ -102,7 +102,7 @@ type PoolPosition @entity {
   user: User!
   pool: Pool!
   tokenBalance: BigInt!
-  averagePrice: BigDecimal!
+  USDValue: BigInt!
 }
 
 type NFTPoolPosition @entity {
@@ -110,7 +110,7 @@ type NFTPoolPosition @entity {
   user: User!
   NFTPool: NFTPool!
   tokenBalance: BigInt!
-  averagePrice: BigDecimal!
+  USDValue: BigInt!
 }
 
 type PoolTransaction @entity {
