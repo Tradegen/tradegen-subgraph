@@ -22,7 +22,7 @@ import {
 
 export function handleNewNFTPool(event: CreatedNFTPool): void {
   // load Tradegen (create if first pool/NFTpool)
-  /*let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS);
+  let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS);
   if (tradegen === null) {
     tradegen = new Tradegen(ADDRESS_RESOLVER_ADDRESS);
     tradegen.poolCount = 0;
@@ -53,7 +53,7 @@ export function handleNewNFTPool(event: CreatedNFTPool): void {
   poolLookup.NFTPoolAddress = pool.id;
 
   poolLookup.save();
-  /*
+  
   // create the tracked contract based on the template
   NFTPoolTemplate.create(event.params.poolAddress);
 
@@ -69,27 +69,19 @@ export function handleNewNFTPool(event: CreatedNFTPool): void {
 
   // create the managed investment
   let managedInvestmentID = event.params.managerAddress.toHexString().concat("-").concat(event.params.poolAddress.toHexString());
-  let managedInvestment = ManagedInvestment.load(managedInvestmentID);
-  if (managedInvestment === null)
-  {
-    managedInvestment = new ManagedInvestment(managedInvestmentID);
-    managedInvestment.pool = event.params.poolAddress.toHexString();
-    managedInvestment.manager = event.params.managerAddress.toHexString();
-  }
+  let managedInvestment = new ManagedInvestment(managedInvestmentID);
+  managedInvestment.NFTPool = event.params.poolAddress.toHexString();
+  managedInvestment.manager = user.id;
 
   managedInvestment.save();
-
-  let poolTransaction = NFTPoolTransaction.load(event.transaction.hash.toHexString());
-  if (poolTransaction === null)
-  {
-    let poolTransaction = new NFTPoolTransaction(event.transaction.hash.toHexString());
-    poolTransaction.blockNumber = event.block.number;
-    poolTransaction.timestamp = event.block.timestamp;
-    poolTransaction.NFTPool = event.params.poolAddress.toHexString();
-  }
+  
+  let poolTransaction = new NFTPoolTransaction(event.transaction.hash.toHexString());
+  poolTransaction.blockNumber = event.block.number;
+  poolTransaction.timestamp = event.block.timestamp;
+  poolTransaction.NFTPool = pool.id;
 
   poolTransaction.save();
-
+  /*
   let createPoolTransaction = new CreateNFTPool(event.transaction.hash.toHexString().concat("-create"));
   createPoolTransaction.NFTPoolTransaction = event.transaction.hash.toHexString();
   createPoolTransaction.timestamp = event.block.timestamp;
