@@ -6,9 +6,9 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: PoolFactory
-    network: celo-alfajores
+    network: celo
     source:
-      address: "0xC71Ff58Efa2bffaE0f120BbfD7C64893aA20bDE0"
+      address: "0x0a0B2FD95d579A91FdCdE3367D0DE01169988232"
       abi: PoolFactory
       startBlock: 6940000
     mapping:
@@ -28,9 +28,9 @@ dataSources:
           handler: handleNewPool
   - kind: ethereum/contract
     name: NFTPoolFactory
-    network: celo-alfajores
+    network: celo
     source:
-      address: "0x35D49c882F65Ce27042601c678da7A6953A134e3"
+      address: "0xa01282250d1A983301Aa9797e41e6054b8149a43"
       abi: NFTPoolFactory
       startBlock: 6940000
     mapping:
@@ -51,7 +51,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: Pool
-    network: celo-alfajores
+    network: celo
     source:
       abi: Pool
     mapping:
@@ -77,7 +77,7 @@ templates:
           handler: handleExecutedTransaction
   - kind: ethereum/contract
     name: NFTPool
-    network: celo-alfajores
+    network: celo
     source:
       abi: NFTPool
     mapping:

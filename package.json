@@ -5,11 +5,10 @@
   "license": "GPL-3.0-or-later",
   "scripts": {
     "codegen": "graph codegen --output-dir src/types/",
-    "build": "graph build",
-    "prepare": "husky install"
+    "build": "graph build"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.22.0",
+    "@graphprotocol/graph-cli": "^0.21.1",
     "@graphprotocol/graph-ts": "^0.20.0",
     "typescript": "^3.5.2"
   },
