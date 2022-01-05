@@ -7,12 +7,12 @@ import {
   NFTPoolTransaction,
   NFTPoolPosition,
   Tradegen
-} from "../../generated/schema";
+} from "../types/schema";
 import {
   Deposit,
   Withdraw,
   ExecutedTransaction
-} from "../../generated/templates/NFTPool/NFTPool";
+} from "../types/templates/NFTPool/NFTPool";
 import {
   updateNFTPoolDayData,
   updateNFTPoolHourData,

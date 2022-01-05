@@ -8,13 +8,13 @@ import {
   PoolTransaction,
   PoolPosition,
   Tradegen
-} from "../../generated/schema";
+} from "../types/schema";
 import {
   Deposit,
   Withdraw,
   MintedManagerFee,
   ExecutedTransaction
-} from "../../generated/templates/Pool/Pool";
+} from "../types/templates/Pool/Pool";
 import {
   updatePoolDayData,
   updatePoolHourData,
@@ -235,7 +235,7 @@ export function handleMintedManagerFee(event: MintedManagerFee): void {
         user.feesEarned = ZERO_BD;
     }
 
-    user.feesEarned = user.feesEarned.plus(new BigDecimal(event.params.amount));
+    user.feesEarned = user.feesEarned.plus(feeInUSD);
 
     user.save();
   
@@ -270,6 +270,7 @@ export function handleMintedManagerFee(event: MintedManagerFee): void {
     mint.managerAddress = event.params.manager.toHexString();
     mint.poolAddress = event.address.toHexString();
     mint.feesMinted = event.params.amount;
+    mint.tokenPrice = tokenPrice;
     mint.save();
     
     // update the transaction

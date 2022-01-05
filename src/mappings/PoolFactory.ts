@@ -1,4 +1,4 @@
-import { CreatedPool } from "../../generated/PoolFactory/PoolFactory";
+import { CreatedPool } from "../types/PoolFactory/PoolFactory";
 import {
   log
 } from "@graphprotocol/graph-ts";
@@ -10,8 +10,8 @@ import {
   ManagedInvestment,
   PoolTransaction,
   CreatePool
-} from "../../generated/schema";
-import { Pool as PoolTemplate } from "../../generated/templates";
+} from "../types/schema";
+import { Pool as PoolTemplate } from "../types/templates";
 import {
   ADDRESS_RESOLVER_ADDRESS,
   fetchPoolName,

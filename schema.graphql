@@ -217,6 +217,7 @@ type MintFeePool @entity {
   managerAddress: String!
   poolAddress: String!
   feesMinted: BigInt! # number of pool tokens minted as performance fee
+  tokenPrice: BigInt!
 }
 
 type ManagedInvestment @entity {

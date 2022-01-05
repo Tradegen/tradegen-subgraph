@@ -6,8 +6,8 @@ import {
   NFTPoolDayData,
   TradegenDayData,
   Tradegen,
-} from "../../generated/schema";
-import { PoolHourData, NFTPoolHourData } from "../../generated/schema";
+} from "../types/schema";
+import { PoolHourData, NFTPoolHourData } from "../types/schema";
 import { ADDRESS_RESOLVER_ADDRESS, ONE_BI, ZERO_BD, ZERO_BI } from "./helpers";
 
 export function updateTradegenDayData(event: ethereum.Event): TradegenDayData {

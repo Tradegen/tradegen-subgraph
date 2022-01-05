@@ -1,4 +1,4 @@
-import { CreatedNFTPool } from "../../generated/NFTPoolFactory/NFTPoolFactory";
+import { CreatedNFTPool } from "../types/NFTPoolFactory/NFTPoolFactory";
 import {
   NFTPool,
   Tradegen,
@@ -7,8 +7,8 @@ import {
   ManagedInvestment,
   NFTPoolTransaction,
   CreateNFTPool
-} from "../../generated/schema";
-import { NFTPool as NFTPoolTemplate } from "../../generated/templates";
+} from "../types/schema";
+import { NFTPool as NFTPoolTemplate } from "../types/templates";
 import {
   ADDRESS_RESOLVER_ADDRESS,
   fetchNFTPoolName,

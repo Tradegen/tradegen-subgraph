@@ -3,15 +3,15 @@ import {
   BigDecimal,
   BigInt
 } from "@graphprotocol/graph-ts";
-import { Pool as PoolContract} from "../../generated/templates/Pool/Pool";
-import { NFTPool as NFTPoolContract} from "../../generated/templates/NFTPool/NFTPool";
+import { Pool as PoolContract} from "../types/templates/Pool/Pool";
+import { NFTPool as NFTPoolContract} from "../types/templates/NFTPool/NFTPool";
 import {
   PoolPosition,
   NFTPoolPosition,
   User
-} from "../../generated/schema";
-import { PoolFactory } from "../../generated/PoolFactory/PoolFactory";
-import { NFTPoolFactory } from "../../generated/NFTPoolFactory/NFTPoolFactory";
+} from "../types/schema";
+import { PoolFactory } from "../types/PoolFactory/PoolFactory";
+import { NFTPoolFactory } from "../types/NFTPoolFactory/NFTPoolFactory";
 
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 export const POOL_FACTORY_ADDRESS = "0x0a0B2FD95d579A91FdCdE3367D0DE01169988232";
