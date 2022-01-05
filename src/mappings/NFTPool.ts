@@ -87,8 +87,8 @@ export function handleDeposit(event: Deposit): void {
     transaction.save();
     
     // update day entities
-    let poolDayData = updateNFTPoolDayData(event);
-    let poolHourData = updateNFTPoolHourData(event);
+    let poolDayData = updateNFTPoolDayData(event, totalSupply, positionAddresses, positionBalances);
+    let poolHourData = updateNFTPoolHourData(event, totalSupply, positionAddresses, positionBalances);
     let tradegenDayData = updateTradegenDayData(event);
   
     // deposit specific updating
@@ -179,8 +179,8 @@ export function handleWithdraw(event: Withdraw): void {
     transaction.save();
   
     // update day entities
-    let poolDayData = updateNFTPoolDayData(event);
-    let poolHourData = updateNFTPoolHourData(event);
+    let poolDayData = updateNFTPoolDayData(event, totalSupply, positionAddresses, positionBalances);
+    let poolHourData = updateNFTPoolHourData(event, totalSupply, positionAddresses, positionBalances);
     let tradegenDayData = updateTradegenDayData(event);
   
     // deposit specific updating
@@ -214,8 +214,15 @@ export function handleWithdraw(event: Withdraw): void {
 export function handleExecutedTransaction(event: ExecutedTransaction): void {
   let pool = NFTPool.load(event.address.toHexString());
   
+  let totalSupply = fetchNFTPoolTotalSupply(event.address);
   let positionAddresses = fetchNFTPoolPositionAddresses(event.address);
   let positionBalances = fetchNFTPoolPositionBalances(event.address);
+
+  // update day entities
+  let poolDayData = updateNFTPoolDayData(event, totalSupply, positionAddresses, positionBalances);
+  let poolHourData = updateNFTPoolHourData(event, totalSupply, positionAddresses, positionBalances);
+  poolDayData.save();
+  poolHourData.save();
 
   // update pool data
   pool.positionAddresses = (positionAddresses) ? positionAddresses : pool.positionAddresses;

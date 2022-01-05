@@ -251,6 +251,10 @@ type PoolHourData @entity {
   # volume stats
   hourlyVolumeUSD: BigDecimal!
   hourlyTxns: BigInt!
+
+  # positions
+  positionAddresses: [String!]
+  positionBalances: [BigInt!]
 }
 
 type NFTPoolHourData @entity {
@@ -265,6 +269,10 @@ type NFTPoolHourData @entity {
   # volume stats
   hourlyVolumeUSD: BigDecimal!
   hourlyTxns: BigInt!
+
+  # positions
+  positionAddresses: [String!]
+  positionBalances: [BigInt!]
 }
 
 type PoolDayData @entity {
@@ -282,6 +290,10 @@ type PoolDayData @entity {
 
   # price stats
   priceUSD: BigInt!
+
+  # positions
+  positionAddresses: [String!]
+  positionBalances: [BigInt!]
 }
 
 type NFTPoolDayData @entity {
@@ -299,4 +311,8 @@ type NFTPoolDayData @entity {
 
   # price stats
   priceUSD: BigInt!
+
+  # positions
+  positionAddresses: [String!]
+  positionBalances: [BigInt!]
 }

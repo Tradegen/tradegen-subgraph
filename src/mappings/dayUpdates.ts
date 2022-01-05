@@ -8,7 +8,17 @@ import {
   Tradegen,
 } from "../types/schema";
 import { PoolHourData, NFTPoolHourData } from "../types/schema";
-import { ADDRESS_RESOLVER_ADDRESS, ONE_BI, ZERO_BD, ZERO_BI } from "./helpers";
+import {
+  fetchPoolTotalSupply,
+  fetchPoolPositionAddresses,
+  fetchPoolPositionBalances,
+  fetchNFTPoolTotalSupply,
+  fetchNFTPoolPositionAddresses,
+  fetchNFTPoolPositionBalances,
+  ADDRESS_RESOLVER_ADDRESS,
+  ONE_BI,
+  ZERO_BD,
+  ZERO_BI } from "./helpers";
 
 export function updateTradegenDayData(event: ethereum.Event): TradegenDayData {
   let tradegen = Tradegen.load(ADDRESS_RESOLVER_ADDRESS);
@@ -34,7 +44,7 @@ export function updateTradegenDayData(event: ethereum.Event): TradegenDayData {
   return tradegenDayData as TradegenDayData;
 }
 
-export function updatePoolDayData(event: ethereum.Event): PoolDayData {
+export function updatePoolDayData(event: ethereum.Event, totalSupply: BigInt, positions: string[], balances: BigInt[]): PoolDayData {
   let timestamp = event.block.timestamp.toI32();
   let dayID = timestamp / 86400;
   let dayStartTimestamp = dayID * 86400;
@@ -52,7 +62,9 @@ export function updatePoolDayData(event: ethereum.Event): PoolDayData {
     poolDayData.dailyTxns = ZERO_BI;
   }
 
-  poolDayData.totalSupply = pool.totalSupply;
+  poolDayData.totalSupply = totalSupply;
+  poolDayData.positionAddresses = positions;
+  poolDayData.positionBalances = balances;
   poolDayData.totalValueLockedUSD = pool.totalValueLockedUSD;
   poolDayData.priceUSD = pool.tokenPrice;
   poolDayData.dailyTxns = poolDayData.dailyTxns.plus(ONE_BI);
@@ -61,7 +73,7 @@ export function updatePoolDayData(event: ethereum.Event): PoolDayData {
   return poolDayData as PoolDayData;
 }
 
-export function updatePoolHourData(event: ethereum.Event): PoolHourData {
+export function updatePoolHourData(event: ethereum.Event, totalSupply: BigInt, positions: string[], balances: BigInt[]): PoolHourData {
   let timestamp = event.block.timestamp.toI32();
   let hourIndex = timestamp / 3600; // get unique hour within unix history
   let hourStartUnix = hourIndex * 3600; // want the rounded effect
@@ -82,7 +94,9 @@ export function updatePoolHourData(event: ethereum.Event): PoolHourData {
     poolHourData.totalSupply = ZERO_BI;
   }
 
-  poolHourData.totalSupply = pool.totalSupply;
+  poolHourData.totalSupply = totalSupply;
+  poolHourData.positionAddresses = positions;
+  poolHourData.positionBalances = balances;
   poolHourData.totalValueLockedUSD = pool.totalValueLockedUSD;
   poolHourData.tokenPrice = pool.tokenPrice;
 
@@ -92,7 +106,7 @@ export function updatePoolHourData(event: ethereum.Event): PoolHourData {
   return poolHourData as PoolHourData;
 }
 
-export function updateNFTPoolDayData(event: ethereum.Event): NFTPoolDayData {
+export function updateNFTPoolDayData(event: ethereum.Event, totalSupply: BigInt, positions: string[], balances: BigInt[]): NFTPoolDayData {
   let timestamp = event.block.timestamp.toI32();
   let dayID = timestamp / 86400;
   let dayStartTimestamp = dayID * 86400;
@@ -110,7 +124,9 @@ export function updateNFTPoolDayData(event: ethereum.Event): NFTPoolDayData {
     poolDayData.dailyTxns = ZERO_BI;
   }
 
-  poolDayData.totalSupply = pool.totalSupply;
+  poolDayData.totalSupply = totalSupply;
+  poolDayData.positionAddresses = positions;
+  poolDayData.positionBalances = balances;
   poolDayData.totalValueLockedUSD = pool.totalValueLockedUSD;
   poolDayData.priceUSD = pool.tokenPrice;
   poolDayData.dailyTxns = poolDayData.dailyTxns.plus(ONE_BI);
@@ -119,7 +135,7 @@ export function updateNFTPoolDayData(event: ethereum.Event): NFTPoolDayData {
   return poolDayData as NFTPoolDayData;
 }
 
-export function updateNFTPoolHourData(event: ethereum.Event): NFTPoolHourData {
+export function updateNFTPoolHourData(event: ethereum.Event, totalSupply: BigInt, positions: string[], balances: BigInt[]): NFTPoolHourData {
   let timestamp = event.block.timestamp.toI32();
   let hourIndex = timestamp / 3600; // get unique hour within unix history
   let hourStartUnix = hourIndex * 3600; // want the rounded effect
@@ -140,7 +156,9 @@ export function updateNFTPoolHourData(event: ethereum.Event): NFTPoolHourData {
     poolHourData.totalSupply = ZERO_BI;
   }
 
-  poolHourData.totalSupply = pool.totalSupply;
+  poolHourData.totalSupply = totalSupply;
+  poolHourData.positionAddresses = positions;
+  poolHourData.positionBalances = balances;
   poolHourData.totalValueLockedUSD = pool.totalValueLockedUSD;
   poolHourData.tokenPrice = pool.tokenPrice;
 

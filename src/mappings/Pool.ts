@@ -91,8 +91,8 @@ export function handleDeposit(event: Deposit): void {
     transaction.save();
     
     // update day entities
-    let poolDayData = updatePoolDayData(event);
-    let poolHourData = updatePoolHourData(event);
+    let poolDayData = updatePoolDayData(event, totalSupply, positionAddresses, positionBalances);
+    let poolHourData = updatePoolHourData(event, totalSupply, positionAddresses, positionBalances);
     let tradegenDayData = updateTradegenDayData(event);
     
     // deposit specific updating
@@ -186,8 +186,8 @@ export function handleWithdraw(event: Withdraw): void {
     transaction.save();
     
     // update day entities
-    let poolDayData = updatePoolDayData(event);
-    let poolHourData = updatePoolHourData(event);
+    let poolDayData = updatePoolDayData(event, totalSupply, positionAddresses, positionBalances);
+    let poolHourData = updatePoolHourData(event, totalSupply, positionAddresses, positionBalances);
     let tradegenDayData = updateTradegenDayData(event);
   
     // deposit specific updating
@@ -222,6 +222,8 @@ export function handleMintedManagerFee(event: MintedManagerFee): void {
     let pool = Pool.load(event.address.toHexString());
     
     let totalSupply = fetchPoolTotalSupply(event.address);
+    let positionAddresses = fetchPoolPositionAddresses(event.address);
+    let positionBalances = fetchPoolPositionBalances(event.address);
     let tokenPrice = fetchPoolTokenPrice(event.address);
     let feeInUSD: BigDecimal = (event.params.amount.toBigDecimal()).times(new BigDecimal(tokenPrice)).div(BigDecimal.fromString("1e18"));
 
@@ -278,8 +280,8 @@ export function handleMintedManagerFee(event: MintedManagerFee): void {
     transaction.save();
   
     // update day entities
-    let poolDayData = updatePoolDayData(event);
-    let poolHourData = updatePoolHourData(event);
+    let poolDayData = updatePoolDayData(event, totalSupply, positionAddresses, positionBalances);
+    let poolHourData = updatePoolHourData(event, totalSupply, positionAddresses, positionBalances);
     let tradegenDayData = updateTradegenDayData(event);
   
     // deposit specific updating
@@ -298,8 +300,15 @@ export function handleMintedManagerFee(event: MintedManagerFee): void {
 export function handleExecutedTransaction(event: ExecutedTransaction): void {
   let pool = Pool.load(event.address.toHexString());
   
+  let totalSupply = fetchPoolTotalSupply(event.address);
   let positionAddresses = fetchPoolPositionAddresses(event.address);
   let positionBalances = fetchPoolPositionBalances(event.address);
+
+  // update day entities
+  let poolDayData = updatePoolDayData(event, totalSupply, positionAddresses, positionBalances);
+  let poolHourData = updatePoolHourData(event, totalSupply, positionAddresses, positionBalances);
+  poolDayData.save();
+  poolHourData.save();
 
   // update pool data
   pool.positionAddresses = (positionAddresses) ? positionAddresses : pool.positionAddresses;
