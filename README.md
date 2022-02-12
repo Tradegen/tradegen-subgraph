@@ -1,6 +1,6 @@
 # Tradegen Subgraph
 
-[Tradegen](https://tradegen.io/) is a decentralized asset management and algo trading platform on Celo.
+Tradegen is a decentralized asset management and algo trading platform on Celo.
 
 This subgraph dynamically tracks any pools and NFT pools created on Tradegen. It tracks of the current state of Tradegen contracts, and contains derived stats for things like historical data and USD prices.
 
