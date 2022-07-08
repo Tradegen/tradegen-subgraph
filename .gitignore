@@ -5,3 +5,5 @@ src/types/
 .DS_STORE
 yarn-error.log
 .env
+yarn.lock
+package-lock.json
